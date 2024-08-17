@@ -104,7 +104,6 @@ export default function LoginScreen() {
             } catch (error: any) {
                 setIsLoading(false);
                 Alert.alert('Error', error.message);
-                console.log('I dey', error);
             }
         }
         //Check if user exists.
