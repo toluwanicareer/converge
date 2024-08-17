@@ -14,6 +14,15 @@ export interface Attendee {
   image: string;
 }
 
+export interface Questions {
+  id: string;
+  name: string;
+  time: string;
+  text: string;
+  likes: number;
+  image: string;
+}
+
 export const fetchData = async <T>(url: string): Promise<T> => {
   const response = await fetch(url);
 
