@@ -3,11 +3,11 @@ import { StyleSheet, TextInput, TouchableOpacity, Alert, View, Image, Pressable 
 import { router, Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
-// import firedb from "@react-native-firebase/database";
-import { useNavigation } from "@react-navigation/native";
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
+import Feather from '@expo/vector-icons/Feather';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { useNavigation } from '@react-navigation/native';
+import firedb from "@react-native-firebase/database";
+import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
 // import { supabase } from '../lib/supabase';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -16,18 +16,17 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function LoginScreen() {
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [team, setTeam] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [emailValid, setEmailValid] = useState(true);
     const [passwordValid, setPasswordValid] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const colorScheme = useColorScheme();
     const navigation = useNavigation();
     
-    const togglePasswordVisibility = () => {
-        setIsPasswordVisible(!isPasswordVisible);
-    };
     
     const handleSendOTP = async () => {
         if (!email) {
@@ -65,45 +64,28 @@ export default function LoginScreen() {
             // Navigate to OTP screen
             router.push('/otp');
         } catch (error) {
+            console.error('Error in login process:', error);
+            // Handle error (show error message to user)
 
         } finally {
             setIsLoading(false);
-        };
-    }
+        }
+    };
 
     const validateEmail = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
 
-    const handleLogin = async () => {
+    const handleRegister = async () => {
+        router.push('home')
         if (emailValid && passwordValid) {
-            
+            console.log('Sign In Methods');
             try {
-                setIsLoading(true);
-                // Replace with your server's login endpoint
-                const response = await axios.post('http://192.168.43.152:3000/user/login', {
-                    email, 
-                    password
-                });
+                
 
-                const {data, status} = await response;
-                console.log('Data', data.data);
-                if (status === 200) {
-                    setIsLoading(false);
-                    // AsyncStorage.setItem(userDetails)
-                    // Login successful, store token/session and navigate
-                    // Example: await AsyncStorage.setItem('token', data.token);
-                    router.push('/home'); // Replace with your desired route
-                } else {
-                    setIsLoading(false);
-                    Alert.alert('Login failed', data.message);
-                }
-
-
-            } catch (error: any) {
-                setIsLoading(false);
-                Alert.alert('Error', error.message);
+            } catch (error) {
+                Alert.alert('I dey');
             }
         }
         //Check if user exists.
@@ -117,7 +99,7 @@ export default function LoginScreen() {
                 <Image source={require('../assets/images/converge_logo.png')} style={styles.logoImage}/>
             </View>
             <ThemedText style={styles.title}>Converge</ThemedText>
-            <ThemedText style={styles.subtitle}>Please enter email and password to login.</ThemedText>
+            <ThemedText style={styles.subtitle}>Fill in your details</ThemedText>
 
             <View style={styles.inputContainer}>
                 <Ionicons name="mail-outline" size={24} color={Colors[colorScheme ?? 'light'].text} style={styles.inputIcon} />
@@ -141,15 +123,28 @@ export default function LoginScreen() {
             </View>
             {!emailValid && <ThemedText style={styles.errorText}>Please enter a valid email</ThemedText>}
             <View style={styles.inputContainer}>
-            <TouchableOpacity onPress={togglePasswordVisibility}>
-                    <AntDesign 
-                        name={isPasswordVisible ? "eye" : "eyeo"} 
-                        size={24} 
-                        color={Colors[colorScheme ?? 'light'].text} 
-                        style={styles.inputIcon} 
-                    />
-            </TouchableOpacity>
-                {/* <AntDesign name={isPasswordVisible ? "eye" : "eyeo"}  size={24} color="black" style={styles.inputIcon} /> */}
+                <FontAwesome6 name="person" size={24} color={Colors[colorScheme ?? 'light'].text} style={styles.personIcon} />
+                <TextInput
+                    style={[styles.input, !emailValid && styles.inputError]}
+                    placeholder="Username"
+                    placeholderTextColor={Colors[colorScheme ?? 'light'].text}
+                    value={email}
+                    onChangeText={(text) => {
+                        setName(text);
+                        // if(validateEmail(text)) {
+                        //     setEmailValid(true);
+                        //     return
+                        // }
+                        // setEmailValid(false);
+                    }}
+                    keyboardType="default"
+                    autoCapitalize="none"
+                    editable={!isLoading}
+                />
+            </View>
+            {!emailValid && <ThemedText style={styles.errorText}>Please enter a valid email</ThemedText>}
+            <View style={styles.inputContainer}>
+                <AntDesign name="eyeo" size={24} color="black" style={styles.inputIcon} />
                 <TextInput
                     style={[styles.input, !passwordValid && styles.inputError]}
                     placeholder="Password"
@@ -166,26 +161,67 @@ export default function LoginScreen() {
                     }}
                     keyboardType="default"
                     autoCapitalize="none"
-                    secureTextEntry={!isPasswordVisible}
                     editable={!isLoading}
                 />
             </View>
             {!passwordValid && <ThemedText style={styles.errorText}>Please enter a password</ThemedText>}
-
+            <View style={styles.inputContainer}>
+                <Feather name="phone" size={24} color="black" style={styles.inputIcon} />
+                <TextInput
+                    style={[styles.input, !passwordValid && styles.inputError]}
+                    placeholder="Phone Number"
+                    placeholderTextColor={Colors[colorScheme ?? 'light'].text}
+                    value={phoneNumber}
+                    onChangeText={(text) => {
+                        setPhoneNumber(text);
+                        // if ( text ) {
+                        //     setPasswordValid(true);
+                        //     return
+                        // }
+                        // setPasswordValid(false);
+                    
+                    }}
+                    keyboardType="numeric"
+                    autoCapitalize="none"
+                    editable={!isLoading}
+                />
+            </View>
+            <View style={styles.inputContainer}>
+                <AntDesign name="team" size={24} color="black" style={styles.inputIcon} />
+                <TextInput
+                    style={[styles.input, !passwordValid && styles.inputError]}
+                    placeholder="Team"
+                    placeholderTextColor={Colors[colorScheme ?? 'light'].text}
+                    value={phoneNumber}
+                    onChangeText={(text) => {
+                        setPhoneNumber(text);
+                        // if ( text ) {
+                        //     setPasswordValid(true);
+                        //     return
+                        // }
+                        // setPasswordValid(false);
+                    
+                    }}
+                    keyboardType="numeric"
+                    autoCapitalize="none"
+                    editable={!isLoading}
+                />
+            </View>
+            {/* {!passwordValid && <ThemedText style={styles.errorText}>Password incorrect</ThemedText>} */}
+            
             <TouchableOpacity
                 style={[styles.loginButton, isLoading && styles.disabledButton]}
-                onPress={handleLogin}
+                onPress={handleRegister}
                 disabled={isLoading}
             >
                 <ThemedText style={styles.loginButtonText}>
-                    {isLoading ? 'Authenticating...' : 'Login'}
+                    {isLoading ? 'Processing...' : 'Register'}
                 </ThemedText>
             </TouchableOpacity>
-
             <View style={styles.navigationText}>
                 <Pressable >
-                   <Link href='/register'>
-                    Proceed to Register
+                   <Link href='/login'>
+                    Proceed to Login
                    </Link> 
                 </Pressable>
             </View>
@@ -227,6 +263,9 @@ const styles = StyleSheet.create({
     },
     inputIcon: {
         marginRight: 10,
+    },
+    personIcon: {
+        marginRight: 20,
     },
     errorText: {
         color: 'red',

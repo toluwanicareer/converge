@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "569498901859",
+    "project_id": "converge-f0937",
+    "storage_bucket": "converge-f0937.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569498901859:android:5be895dff3212b3b708756",
+        "android_client_info": {
+          "package_name": "com.accessbankplc.converge"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYcmWLL6DGGaovo7iLLnZpMhkdf0VpTEs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
