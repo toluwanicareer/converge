@@ -76,7 +76,7 @@ const AgendaScreen = () => {
 
     const handleShowDetails = (item: AgendaItem) => {
         setSelectedItem(item);
-        setModalVisible(true);
+        router.push(`/agenda/${item.id}`);
     };
 
     return (

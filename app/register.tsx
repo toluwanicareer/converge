@@ -6,7 +6,6 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useNavigation } from '@react-navigation/native';
-import firedb from "@react-native-firebase/database";
 import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
 // import { supabase } from '../lib/supabase';
 
@@ -26,16 +25,16 @@ export default function LoginScreen() {
     const [isLoading, setIsLoading] = useState(false);
     const colorScheme = useColorScheme();
     const navigation = useNavigation();
-    
-    
+
+
     const handleSendOTP = async () => {
         if (!email) {
             setEmailValid(false);
             return;
         }
-        
+
         setIsLoading(true);
-        
+
         try {
             // Check if user exists
             // const { data: { user }, error: userError } = await supabase.auth.getUser(email);
@@ -82,7 +81,7 @@ export default function LoginScreen() {
         if (emailValid && passwordValid) {
             console.log('Sign In Methods');
             try {
-                
+
 
             } catch (error) {
                 Alert.alert('I dey');
@@ -96,7 +95,7 @@ export default function LoginScreen() {
     return (
         <ThemedView style={styles.container}>
             <View style={styles.imageContainer} >
-                <Image source={require('../assets/images/converge_logo.png')} style={styles.logoImage}/>
+                <Image source={require('../assets/images/converge_logo.png')} style={styles.logoImage} />
             </View>
             <ThemedText style={styles.title}>Converge</ThemedText>
             <ThemedText style={styles.subtitle}>Fill in your details</ThemedText>
@@ -110,7 +109,7 @@ export default function LoginScreen() {
                     value={email}
                     onChangeText={(text) => {
                         setEmail(text);
-                        if(validateEmail(text)) {
+                        if (validateEmail(text)) {
                             setEmailValid(true);
                             return
                         }
@@ -152,12 +151,12 @@ export default function LoginScreen() {
                     value={password}
                     onChangeText={(text) => {
                         setPassword(text);
-                        if ( text ) {
+                        if (text) {
                             setPasswordValid(true);
                             return
                         }
                         setPasswordValid(false);
-                    
+
                     }}
                     keyboardType="default"
                     autoCapitalize="none"
@@ -179,7 +178,7 @@ export default function LoginScreen() {
                         //     return
                         // }
                         // setPasswordValid(false);
-                    
+
                     }}
                     keyboardType="numeric"
                     autoCapitalize="none"
@@ -200,7 +199,7 @@ export default function LoginScreen() {
                         //     return
                         // }
                         // setPasswordValid(false);
-                    
+
                     }}
                     keyboardType="numeric"
                     autoCapitalize="none"
@@ -208,7 +207,7 @@ export default function LoginScreen() {
                 />
             </View>
             {/* {!passwordValid && <ThemedText style={styles.errorText}>Password incorrect</ThemedText>} */}
-            
+
             <TouchableOpacity
                 style={[styles.loginButton, isLoading && styles.disabledButton]}
                 onPress={handleRegister}
@@ -220,9 +219,9 @@ export default function LoginScreen() {
             </TouchableOpacity>
             <View style={styles.navigationText}>
                 <Pressable >
-                   <Link href='/login'>
-                    Proceed to Login
-                   </Link> 
+                    <Link href='/login'>
+                        Proceed to Login
+                    </Link>
                 </Pressable>
             </View>
         </ThemedView>
