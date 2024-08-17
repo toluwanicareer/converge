@@ -62,8 +62,9 @@ export default function AttendeesScreen() {
         <ThemedView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color={Colors[colorScheme ?? 'light'].text} />
+                    <Ionicons name="arrow-back" size={17} color={Colors[colorScheme ?? 'light'].text} />
                 </TouchableOpacity>
+                <ThemedText onPress={() => router.back()} style={styles.headerBack}>Back</ThemedText>
                 <ThemedText style={styles.headerTitle}>Attendees</ThemedText>
             </View>
 
@@ -93,16 +94,21 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingTop: 40,
     },
+    headerBack: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        marginLeft: 5,
+    },
+    headerTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginHorizontal: 90
+    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 20,
         marginBottom: 20,
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginLeft: 20,
     },
     searchContainer: {
         flexDirection: 'row',

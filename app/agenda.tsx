@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -16,13 +16,16 @@ interface AgendaItem {
     date: string;
     location: string;
     time: string;
+    additionalDetails?: string[];
 }
 
 const { width: screenWidth } = Dimensions.get('window');
-const ITEM_WIDTH = screenWidth * 0.9; // 80% of screen width
-const ITEM_HEIGHT = ITEM_WIDTH * 2; // Adjust this ratio as needed
+const ITEM_WIDTH = screenWidth * 0.9;
+const ITEM_HEIGHT = ITEM_WIDTH * 2;
 
 const AgendaCard: React.FC<{ item: AgendaItem }> = ({ item }) => {
+    const [showDetails, setShowDetails] = useState(false);
+
     return (
         <ScrollView style={styles.card} contentContainerStyle={styles.cardContent}>
             <ThemedText style={styles.dayText}>{item.day}</ThemedText>
@@ -33,7 +36,6 @@ const AgendaCard: React.FC<{ item: AgendaItem }> = ({ item }) => {
                     <View>
                         <ThemedText style={styles.detailText}>{item.date}</ThemedText>
                         <ThemedText style={styles.detailLabel}>Date</ThemedText>
-
                     </View>
                 </View>
                 <View style={styles.detailItem}>
@@ -41,7 +43,6 @@ const AgendaCard: React.FC<{ item: AgendaItem }> = ({ item }) => {
                     <View>
                         <ThemedText style={styles.detailText}>{item.location}</ThemedText>
                         <ThemedText style={styles.detailLabel}>Location</ThemedText>
-
                     </View>
                 </View>
                 <View style={styles.detailItem}>
@@ -49,10 +50,29 @@ const AgendaCard: React.FC<{ item: AgendaItem }> = ({ item }) => {
                     <View>
                         <ThemedText style={styles.detailText}>{item.time}</ThemedText>
                         <ThemedText style={styles.detailLabel}>Time</ThemedText>
-
                     </View>
                 </View>
             </View>
+
+            {showDetails && (
+                <View style={styles.extraDetails}>
+                    {/* Display additional details here */}
+                    {item.additionalDetails?.map((detail, index) => (
+                        <ThemedText key={index} style={styles.detailText}>
+                            {detail}
+                        </ThemedText>
+                    ))}
+                </View>
+            )}
+
+            <TouchableOpacity
+                style={styles.readMoreButton}
+                onPress={() => setShowDetails(!showDetails)}
+            >
+                <ThemedText style={styles.readMoreText}>
+                    {showDetails ? 'Show Less' : 'Read More'}
+                </ThemedText>
+            </TouchableOpacity>
         </ScrollView>
     );
 };
@@ -68,6 +88,7 @@ export default function AgendaScreen() {
             date: '12/10/2024',
             location: 'Access Towers',
             time: '9:00AM',
+            additionalDetails: ['Introduction to leadership', 'Keynote by CEO'],
         },
         {
             id: '2',
@@ -76,6 +97,7 @@ export default function AgendaScreen() {
             date: '13/10/2024',
             location: 'Tech Hub',
             time: '10:00AM',
+            additionalDetails: ['Panel discussion on tech trends', 'Networking session'],
         },
         // Add more agenda items as needed
     ];
@@ -100,12 +122,12 @@ export default function AgendaScreen() {
                 onSnapToItem={(index) => console.log('Current index:', index)}
                 renderItem={({ item }) => <AgendaCard item={item} />}
                 modeConfig={{
-                    snapDirection: 'left',
                     stackInterval: 20,
                 }}
                 mode="parallax"
                 customConfig={() => ({ type: 'positive', viewCount: 2 })}
             />
+
         </ThemedView>
     );
 }
@@ -130,7 +152,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
-        //backgroundColor: 'blue',
     },
     card: {
         width: ITEM_WIDTH,
@@ -142,13 +163,9 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        //elevation: 3,
         borderWidth: 2,
         borderColor: '#000',
-
-
     },
-
     cardContent: {
         padding: 20,
     },
@@ -156,7 +173,6 @@ const styles = StyleSheet.create({
         fontSize: 40,
         fontWeight: 'bold',
         marginBottom: 10,
-
     },
     titleText: {
         fontSize: 40,
@@ -182,29 +198,22 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginLeft: 10,
     },
-
-    safeArea: {
-        flex: 1,
+    extraDetails: {
+        marginTop: 20,
+        padding: 10,
+        backgroundColor: '#F5F5F5',
+        borderRadius: 10,
     },
-    // container: {
-    //     flex: 1,
-    // },
-    // header: {
-    //     flexDirection: 'row',
-    //     alignItems: 'center',
-    //     paddingHorizontal: 20,
-    //     paddingVertical: 10,
-    // },
-    // headerTitle: {
-    //     fontSize: 20,
-    //     fontWeight: 'bold',
-    //     marginLeft: 20,
-    // },
-    // carousel: {
-    //     flex: 1,
-    //     justifyContent: 'center',
-    //     alignItems: 'center',
-    // }
-    // ... (other styles remain unchanged)
-
+    readMoreButton: {
+        marginTop: 20,
+        padding: 10,
+        backgroundColor: '#FF8200',
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    readMoreText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
 });

@@ -36,8 +36,10 @@ export default function RootLayout() {
         <Stack.Screen name="documents" options={{ headerShown: false }} />
         <Stack.Screen name="attendees" options={{ headerShown: false }} />
         <Stack.Screen name="agenda" options={{ headerShown: false }} />
-        <Stack.Screen name="speakers" options={{ headerShown: false }} />
+        <Stack.Screen name="directors" options={{ headerShown: false }} />
         <Stack.Screen name="polls" options={{ headerShown: false }} />
+        <Stack.Screen name="questions" options={{ headerShown: false }} />
+        <Stack.Screen name="announcements" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
