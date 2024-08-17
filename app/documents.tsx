@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -7,12 +7,9 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { Document } from '@/services/api';
 
-interface Document {
-    id: string;
-    title: string;
-    creator: string;
-}
+
 
 const DocumentItem: React.FC<{ document: Document }> = ({ document }) => (
     <View style={styles.documentItem}>
@@ -33,15 +30,30 @@ const DocumentItem: React.FC<{ document: Document }> = ({ document }) => (
 );
 
 export default function DocumentsScreen() {
+    const [documents, setDocuments] = useState<Document[]>([]);
+    const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const colorScheme = useColorScheme();
 
-    const documents: Document[] = [
-        { id: '1', title: 'Leadership and Management', creator: 'Toluwani Akano' },
-        { id: '2', title: 'Leadership and Management', creator: 'Toluwani Akano' },
-        { id: '3', title: 'Leadership and Management', creator: 'Toluwani Akano' },
-        { id: '4', title: 'Leadership and Management', creator: 'Toluwani Akano' },
-    ];
+    useEffect(() => {
+        const loadDocument = async () => {
+            try {
+                // const result = await fetchData<Document[]>();
+                // setDocuments(result);
+            } catch (error: any) {
+                setError(error.message);
+            }
+        };
+
+        loadDocument();
+    }, []);
+
+    // const documents: Document[] = [
+    //     { id: '1', title: 'Leadership and Management', creator: 'Toluwani Akano' },
+    //     { id: '2', title: 'Leadership and Management', creator: 'Toluwani Akano' },
+    //     { id: '3', title: 'Leadership and Management', creator: 'Toluwani Akano' },
+    //     { id: '4', title: 'Leadership and Management', creator: 'Toluwani Akano' },
+    // ];
 
     return (
         <ThemedView style={styles.container}>

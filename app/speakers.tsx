@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -9,9 +9,21 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 const SpeakersScreen = () => {
     const colorScheme = useColorScheme();
+    const speakers: any = [
+        {
+            name: 'Toluwani',
+            team: 'Speaker',
+            pix: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwme89cM8YZvHcybGrZl_Obd9U9p5QabozJQ&s'
+        },
+        {
+            name: 'Toluwani',
+            team: 'Speaker',
+            pix: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwme89cM8YZvHcybGrZl_Obd9U9p5QabozJQ&s'
+        },
+    ];
 
     return (
-        <SafeAreaView style={styles.container}>
+        <ScrollView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color={Colors[colorScheme ?? 'light'].text} />
@@ -25,17 +37,20 @@ const SpeakersScreen = () => {
                 />
             </View>
 
-            <View style={styles.speakerCard}>
-                <Image
-                    style={styles.speakerImage}
-                    source={{ uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwme89cM8YZvHcybGrZl_Obd9U9p5QabozJQ&s" }}
-                />
-                <Text style={styles.speakerName}>SPEAKER NAME</Text>
-                <Text style={styles.speakerRole}>Speaker's role and organization</Text>
-            </View>
+            {speakers.map((speaker: any) => {
+                <View key={speaker.name} style={styles.speakerCard}>
+                    <Image
+                        style={styles.speakerImage}
+                        source={{ uri: speaker.pix }}
+                    />
+                    <Text style={styles.speakerName}>{speaker.name}</Text>
+                    <Text style={styles.speakerRole}>{speaker.team}</Text>
+                </View>
+            })}
+
 
             {/* Add more speaker cards as needed */}
-        </SafeAreaView>
+        </ScrollView>
     );
 };
 

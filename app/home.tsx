@@ -37,11 +37,11 @@ export default function HomeScreen() {
     const userName = "Tolulope Esther"; // This should be fetched from user state or context
 
     const navItems = [
-        { title: "Attendees", image: require('@/assets/images/attendee.png') },
-        { title: "Speakers", image: require('@/assets/images/speakers.png') },
-        { title: "Agenda", image: require('@/assets/images/agenda.png') },
-        { title: "Documents", image: require('@/assets/images/document.png') },
-        { title: "Polls", image: require('@/assets/images/poll.png') },
+        { title: "Attendees", image: require('@/assets/images/1.png') },
+        { title: "Speakers", image: require('@/assets/images/2.png') },
+        { title: "Agenda", image: require('@/assets/images/3.png') },
+        { title: "Documents", image: require('@/assets/images/4.png') },
+        { title: "Polls", image: require('@/assets/images/5.png') },
         // { title: "Questions & Answers", image: require('@/assets/images/question.png') },
     ];
 

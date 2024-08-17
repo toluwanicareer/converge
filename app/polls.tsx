@@ -11,6 +11,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 interface PollOption {
     id: string;
     text: string;
+    progress: number;
 }
 
 interface Poll {
@@ -27,7 +28,12 @@ const PollItem: React.FC<{ poll: Poll }> = ({ poll }) => (
         {poll.options.map((option) => (
             <TouchableOpacity key={option.id} style={styles.optionItem}>
                 <View style={styles.radioButton} />
-                <ThemedText style={styles.optionText}>{option.text}</ThemedText>
+                <View style={styles.optionContainer}>
+                    <ThemedText style={styles.optionText}>{option.text}</ThemedText>
+                    <View style={styles.progressBarBackground}>
+                        <View style={[styles.progressBar, { width: `${option.progress}%` }]} />
+                    </View>
+                </View>
             </TouchableOpacity>
         ))}
     </View>
@@ -42,9 +48,9 @@ export default function PollsScreen() {
             title: 'Title of Poll',
             instruction: 'Select one or more',
             options: [
-                { id: '1', text: 'Option 1 goes here' },
-                { id: '2', text: 'Option 2 goes here' },
-                { id: '3', text: 'Option 3 goes here' },
+                { id: '1', text: 'Option 1 goes here', progress: 40 },
+                { id: '2', text: 'Option 2 goes here', progress: 60 },
+                { id: '3', text: 'Option 3 goes here', progress: 80 },
             ],
         },
         {
@@ -52,8 +58,8 @@ export default function PollsScreen() {
             title: 'Title of Poll',
             instruction: 'Select one or more',
             options: [
-                { id: '1', text: 'Option 1 goes here' },
-                { id: '2', text: 'Option 2 goes here' },
+                { id: '1', text: 'Option 1 goes here', progress: 50 },
+                { id: '2', text: 'Option 2 goes here', progress: 50 },
             ],
         },
         {
@@ -61,8 +67,8 @@ export default function PollsScreen() {
             title: 'Title of Poll',
             instruction: 'Select one or more',
             options: [
-                { id: '1', text: 'Option 1 goes here' },
-                { id: '2', text: 'Option 2 goes here' },
+                { id: '1', text: 'Option 1 goes here', progress: 70 },
+                { id: '2', text: 'Option 2 goes here', progress: 30 },
             ],
         },
     ];
@@ -139,7 +145,21 @@ const styles = StyleSheet.create({
         borderColor: '#000',
         marginRight: 10,
     },
+    optionContainer: {
+        flex: 1,
+    },
     optionText: {
         fontSize: 16,
+    },
+    progressBarBackground: {
+        height: 6,
+        backgroundColor: '#e0e0e0',
+        borderRadius: 3,
+        marginTop: 5,
+    },
+    progressBar: {
+        height: '100%',
+        backgroundColor: '#FF8200',
+        borderRadius: 3,
     },
 });
