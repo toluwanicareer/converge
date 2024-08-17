@@ -22,42 +22,15 @@ export default function LoginScreen() {
         }
 
         setIsLoading(true);
-
         try {
-            // Check if user exists
-            const { data: { user }, error: userError } = await supabase.auth.getUser(email);
-            console.log('User:', user, 'Error:', userError);
-            if (userError && userError.status !== 404) {
-                console.error('Error fetching user:', userError);
-                throw userError;
-            }
-
-            if (!user) {
-                // User doesn't exist, sign up
-                const { error: signUpError } = await supabase.auth.signUp({
-                    email: email,
-                    password: Math.random().toString(36).slice(-8), // Generate a random password
-                });
-
-                if (signUpError) throw signUpError;
-
-                console.log('New user registered');
-            }
-
-            // Send OTP for login (works for both new and existing users)
-            const { error: otpError } = await supabase.auth.signInWithOtp({ email });
-            if (otpError) throw otpError;
-
-            // Navigate to OTP screen
-            router.push('/otp');
+            //navigate to home screen
+            router.push('/home');
         } catch (error) {
-            console.error('Error in login process:', error);
-            // Handle error (show error message to user)
 
         } finally {
             setIsLoading(false);
-        }
-    };
+        };
+    }
 
     return (
         <ThemedView style={styles.container}>

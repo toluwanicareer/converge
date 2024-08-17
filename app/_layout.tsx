@@ -4,7 +4,6 @@ import { Stack, Redirect } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -33,8 +32,12 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="otp" options={{ headerShown: false }} />
-        {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="not-found" options={{ title: 'Oops!' }} /> */}
+        <Stack.Screen name="home" options={{ headerShown: false }} />
+        <Stack.Screen name="documents" options={{ headerShown: false }} />
+        <Stack.Screen name="attendees" options={{ headerShown: false }} />
+        <Stack.Screen name="agenda" options={{ headerShown: false }} />
+        <Stack.Screen name="speakers" options={{ headerShown: false }} />
+        <Stack.Screen name="polls" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
