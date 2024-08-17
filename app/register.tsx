@@ -3,8 +3,9 @@ import { StyleSheet, TextInput, TouchableOpacity, Alert, View, Image, Pressable 
 import { router, Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import Feather from '@expo/vector-icons/Feather';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import firedb from "@react-native-firebase/database";
-import { useNavigation } from "@react-navigation/native"
 import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
 // import { supabase } from '../lib/supabase';
 
@@ -14,13 +15,15 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function LoginScreen() {
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [team, setTeam] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [emailValid, setEmailValid] = useState(true);
     const [passwordValid, setPasswordValid] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const colorScheme = useColorScheme();
-    const navigation = useNavigation();
     
     
     
@@ -94,7 +97,7 @@ export default function LoginScreen() {
                 <Image source={require('../assets/images/converge_logo.png')} style={styles.logoImage}/>
             </View>
             <ThemedText style={styles.title}>Converge</ThemedText>
-            <ThemedText style={styles.subtitle}>Please enter email and password to login.</ThemedText>
+            <ThemedText style={styles.subtitle}>Fill in your details</ThemedText>
 
             <View style={styles.inputContainer}>
                 <Ionicons name="mail-outline" size={24} color={Colors[colorScheme ?? 'light'].text} style={styles.inputIcon} />
@@ -112,6 +115,27 @@ export default function LoginScreen() {
                         setEmailValid(false);
                     }}
                     keyboardType="email-address"
+                    autoCapitalize="none"
+                    editable={!isLoading}
+                />
+            </View>
+            {!emailValid && <ThemedText style={styles.errorText}>Please enter a valid email</ThemedText>}
+            <View style={styles.inputContainer}>
+                <FontAwesome6 name="person" size={24} color={Colors[colorScheme ?? 'light'].text} style={styles.inputIcon} />
+                <TextInput
+                    style={[styles.input, !emailValid && styles.inputError]}
+                    placeholder="Username"
+                    placeholderTextColor={Colors[colorScheme ?? 'light'].text}
+                    value={email}
+                    onChangeText={(text) => {
+                        setName(text);
+                        // if(validateEmail(text)) {
+                        //     setEmailValid(true);
+                        //     return
+                        // }
+                        // setEmailValid(false);
+                    }}
+                    keyboardType="default"
                     autoCapitalize="none"
                     editable={!isLoading}
                 />
@@ -139,21 +163,63 @@ export default function LoginScreen() {
                 />
             </View>
             {!passwordValid && <ThemedText style={styles.errorText}>Please enter a password</ThemedText>}
-
+            <View style={styles.inputContainer}>
+                <Feather name="phone" size={24} color="black" style={styles.inputIcon} />
+                <TextInput
+                    style={[styles.input, !passwordValid && styles.inputError]}
+                    placeholder="Phone Number"
+                    placeholderTextColor={Colors[colorScheme ?? 'light'].text}
+                    value={phoneNumber}
+                    onChangeText={(text) => {
+                        setPhoneNumber(text);
+                        // if ( text ) {
+                        //     setPasswordValid(true);
+                        //     return
+                        // }
+                        // setPasswordValid(false);
+                    
+                    }}
+                    keyboardType="numeric"
+                    autoCapitalize="none"
+                    editable={!isLoading}
+                />
+            </View>
+            <View style={styles.inputContainer}>
+                <AntDesign name="team" size={24} color="black" style={styles.inputIcon} />
+                <TextInput
+                    style={[styles.input, !passwordValid && styles.inputError]}
+                    placeholder="Team"
+                    placeholderTextColor={Colors[colorScheme ?? 'light'].text}
+                    value={phoneNumber}
+                    onChangeText={(text) => {
+                        setPhoneNumber(text);
+                        // if ( text ) {
+                        //     setPasswordValid(true);
+                        //     return
+                        // }
+                        // setPasswordValid(false);
+                    
+                    }}
+                    keyboardType="numeric"
+                    autoCapitalize="none"
+                    editable={!isLoading}
+                />
+            </View>
+            {/* {!passwordValid && <ThemedText style={styles.errorText}>Password incorrect</ThemedText>} */}
+            
             <TouchableOpacity
                 style={[styles.loginButton, isLoading && styles.disabledButton]}
                 onPress={handleLogin}
                 disabled={isLoading}
             >
                 <ThemedText style={styles.loginButtonText}>
-                    {isLoading ? 'Processing...' : 'Login'}
+                    {isLoading ? 'Processing...' : 'Register'}
                 </ThemedText>
             </TouchableOpacity>
-
             <View style={styles.navigationText}>
                 <Pressable >
-                   <Link href='/register'>
-                    Proceed to Register
+                   <Link href='/login'>
+                    Proceed to Login
                    </Link> 
                 </Pressable>
             </View>
