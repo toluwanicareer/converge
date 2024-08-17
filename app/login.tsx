@@ -14,6 +14,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useSession } from '@/context/auth/auth';
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
@@ -87,20 +88,15 @@ export default function LoginScreen() {
                     password
                 });
 
-                const {data, status} = await response;
-                console.log('Data', data.data);
-                if (status === 200) {
-                    setIsLoading(false);
-                    // AsyncStorage.setItem(userDetails)
-                    // Login successful, store token/session and navigate
-                    // Example: await AsyncStorage.setItem('token', data.token);
-                    router.push('/home'); // Replace with your desired route
-                } else {
-                    setIsLoading(false);
-                    Alert.alert('Login failed', data.message);
+                const {data, status} = response;
+                console.log(data)
+                AsyncStorage.setItem('session',JSON.stringify(data.data))
+                if( !data.passwordChanged) {
+                    router.push('/change-password');
+                    return
                 }
 
-
+                router.push('/home');
             } catch (error: any) {
                 setIsLoading(false);
                 Alert.alert('Error', error.message);
@@ -184,8 +180,8 @@ export default function LoginScreen() {
 
             <View style={styles.navigationText}>
                 <Pressable >
-                   <Link href='/register'>
-                    Proceed to Register
+                   <Link href='/change-password'>
+                    Change Password
                    </Link> 
                 </Pressable>
             </View>
@@ -233,7 +229,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     loginButton: {
-        backgroundColor: '#4B0082',
+        backgroundColor: '#FF8200',
         padding: 15,
         borderRadius: 5,
         alignItems: 'center',
