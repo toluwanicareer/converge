@@ -6,7 +6,6 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useNavigation } from '@react-navigation/native';
-import firedb from "@react-native-firebase/database";
 import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
 import axios from 'axios';
 // import { supabase } from '../lib/supabase';
@@ -46,9 +45,9 @@ export default function ChangePasswordScreen() {
             setEmailValid(false);
             return;
         }
-        
+
         setIsLoading(true);
-        
+
         try {
             // Check if user exists
             // const { data: { user }, error: userError } = await supabase.auth.getUser(email);
@@ -138,7 +137,7 @@ export default function ChangePasswordScreen() {
     return (
         <ThemedView style={styles.container}>
             <View style={styles.imageContainer} >
-                <Image source={require('../assets/images/converge_logo.png')} style={styles.logoImage}/>
+                <Image source={require('../assets/images/converge_logo.png')} style={styles.logoImage} />
             </View>
             <ThemedText style={styles.title}>Converge</ThemedText>
             <ThemedText style={styles.subtitle}>Change your password</ThemedText>
@@ -160,12 +159,12 @@ export default function ChangePasswordScreen() {
                     value={password}
                     onChangeText={(text) => {
                         setPassword(text);
-                        if ( text ) {
+                        if (text) {
                             setPasswordValid(true);
                             return
                         }
                         setPasswordValid(false);
-                    
+
                     }}
                     keyboardType="default"
                     autoCapitalize="none"
@@ -208,7 +207,7 @@ export default function ChangePasswordScreen() {
        
        
             {/* {!passwordValid && <ThemedText style={styles.errorText}>Password incorrect</ThemedText>} */}
-            
+
             <TouchableOpacity
                 style={[styles.loginButton, isLoading && styles.disabledButton]}
                 onPress={changePassword}
@@ -220,9 +219,9 @@ export default function ChangePasswordScreen() {
             </TouchableOpacity>
             <View style={styles.navigationText}>
                 <Pressable >
-                   <Link href='/login'>
-                    Proceed to Login
-                   </Link> 
+                    <Link href='/login'>
+                        Proceed to Login
+                    </Link>
                 </Pressable>
             </View>
         </ThemedView>

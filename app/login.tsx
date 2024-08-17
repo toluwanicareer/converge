@@ -110,10 +110,10 @@ export default function LoginScreen() {
     return (
         <ThemedView style={styles.container}>
             <View style={styles.imageContainer} >
-                <Image source={require('../assets/images/converge_logo.png')} style={styles.logoImage}/>
+                <Image source={require('../assets/images/logo_converge.png')} style={styles.logoImage}/>
             </View>
-            <ThemedText style={styles.title}>Converge</ThemedText>
-            <ThemedText style={styles.subtitle}>Please enter email and password to login.</ThemedText>
+            <ThemedText style={styles.title}>Welcome to Access Converge-X</ThemedText>
+            <ThemedText style={styles.subtitle}>Please enter email and password to login</ThemedText>
 
             <View style={styles.inputContainer}>
                 <Ionicons name="mail-outline" size={24} color={Colors[colorScheme ?? 'light'].text} style={styles.inputIcon} />
@@ -178,13 +178,13 @@ export default function LoginScreen() {
                 </ThemedText>
             </TouchableOpacity>
 
-            <View style={styles.navigationText}>
+            {/* <View style={styles.navigationText}>
                 <Pressable >
                    <Link href='/change-password'>
                     Change Password
                    </Link> 
                 </Pressable>
-            </View>
+            </View> */}
         </ThemedView>
     );
 }
@@ -252,7 +252,10 @@ const styles = StyleSheet.create({
     },
     logoImage: {
         justifyContent: 'center',
-        resizeMode: 'contain'
+        resizeMode: 'contain',
+        width: 200,
+        height: 35,
+        // backgroundColor: 'red'
     },
     navigationText: {
         justifyContent: 'center',
