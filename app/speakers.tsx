@@ -23,7 +23,7 @@ const SpeakersScreen = () => {
     ];
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color={Colors[colorScheme ?? 'light'].text} />
@@ -37,7 +37,8 @@ const SpeakersScreen = () => {
                 />
             </View>
 
-            {speakers.map((speaker: any) => {
+            {speakers.map((speaker: any) => (
+
                 <View key={speaker.name} style={styles.speakerCard}>
                     <Image
                         style={styles.speakerImage}
@@ -46,7 +47,9 @@ const SpeakersScreen = () => {
                     <Text style={styles.speakerName}>{speaker.name}</Text>
                     <Text style={styles.speakerRole}>{speaker.team}</Text>
                 </View>
-            })}
+            ))}
+
+
 
 
             {/* Add more speaker cards as needed */}
@@ -56,7 +59,7 @@ const SpeakersScreen = () => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        //flex: 1,
         backgroundColor: 'white',
     },
     headerTitle: {
@@ -91,7 +94,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         margin: 16,
         borderRadius: 16,
-        backgroundColor: 'white',
+        backgroundColor: '#fff',
         // shadowColor: '#000',
         // shadowOpacity: 0.1,
         shadowRadius: 8,
