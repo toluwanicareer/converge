@@ -1,5 +1,5 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-//import { useFonts } from 'expo-font';
+import { useFonts } from 'expo-font';
 import { Stack, Redirect } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
@@ -7,7 +7,6 @@ import { Slot } from 'expo-router';
 import 'react-native-reanimated';
 import { SessionProvider , useSession } from '@/context/auth/auth';
 // import ProtectedRoutes from '@/context/auth/Protected';
-import { Inter_900Black, useFonts } from '@expo-google-fonts/inter';
 // import RegisterScreen from ".."
 
 
