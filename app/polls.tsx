@@ -23,12 +23,13 @@ interface Poll {
     options: PollOption[];
 }
 
-const PollItem: React.FC<{ poll: Poll }> = ({ poll }) => { 
+const PollItem: React.FC<{ poll: any, options: any }> = ({ poll, options }) => { 
     const [selectedOption, setSelectedOption] = useState<string | null >(null);
     const [polls, setPolls] = useState<Poll[]>([]);
     const [loading, setLoading] = useState(true);
     const [pollOptions, setPollOptions] = useState<PollOption[]>(poll.options);
     const [error, setError] = useState<string | null>(null);
+
 
     useEffect(() => {
         const fetchSelectedOption = async () => {
@@ -77,13 +78,22 @@ const PollItem: React.FC<{ poll: Poll }> = ({ poll }) => {
         return selectedOption === optionId ? 100 : 0; // Progress based on selected option
     };
 
+    const getSum = () => {
+        let sum = 0;
+        options.map((option: any) => {
+            sum += option.count;
+        })
+
+        return sum;
+    }
+
     return (
         <View style={styles.pollItem}>
-            <ThemedText style={styles.pollTitle}>{poll.title}</ThemedText>
-            <ThemedText style={styles.pollInstruction}>{poll.instruction}</ThemedText>
-            {pollOptions.map((option) => {
-                const isSelected = selectedOption === option.id;
-                const progressPercentage = option.votes / Math.max(...pollOptions.map(o => o.votes)) * 100;
+            <ThemedText style={styles.pollTitle}>{poll.question}</ThemedText>
+            <ThemedText style={styles.pollInstruction}>Select one option</ThemedText>
+            {options.map((option: any) => {
+                const progressPercentage = (option.count / getSum()) * 100;
+                
                 return (
 
                     <TouchableOpacity 
@@ -91,7 +101,7 @@ const PollItem: React.FC<{ poll: Poll }> = ({ poll }) => {
                         style={styles.optionItem}
                         onPress={() => handleOptionSelect(poll.id, option.id)}
                     >
-                        <View style={[styles.radioButton, isSelected && styles.selectedRadioButton]} />
+                        <View style={[styles.radioButton, styles.selectedRadioButton]} />
                         <View style={styles.optionContainer}>
                             <ThemedText style={styles.optionText}>{option.text}</ThemedText>
                             <View style={styles.progressBarBackground}>
@@ -108,37 +118,51 @@ const PollItem: React.FC<{ poll: Poll }> = ({ poll }) => {
 
 export default function PollsScreen() {
     const colorScheme = useColorScheme();
+    const [polls, setPolls] = useState<any>(null);
+    const [options, setOptions] = useState<any>(null);
 
-    const polls: Poll[] = [
-        {
-            id: '1',
-            title: 'Title of Poll',
-            instruction: 'Select one',
-            options: [
-                { id: '1', text: 'Option 1 goes here', votes: 40 },
-                { id: '2', text: 'Option 2 goes here', votes: 60 },
-                { id: '3', text: 'Option 3 goes here', votes: 80 },
-            ],
-        },
-        {
-            id: '2',
-            title: 'Title of Poll',
-            instruction: 'Select one',
-            options: [
-                { id: '1', text: 'Option 1 goes here', votes: 50 },
-                { id: '2', text: 'Option 2 goes here', votes: 50 },
-            ],
-        },
-        {
-            id: '3',
-            title: 'Title of Poll',
-            instruction: 'Select one',
-            options: [
-                { id: '1', text: 'Option 1 goes here', votes: 70 },
-                { id: '2', text: 'Option 2 goes here', votes: 30 },
-            ],
-        },
-    ];
+    useEffect(() => {
+      getPoll()
+    }, [])
+
+    const getPoll = async() => {
+        const response = await fetch('https://192.168.1.129:3000/poll/with-options');
+        const data = await response.json();
+        setPolls(data.polls);
+        setOptions(data.options);
+    }
+    
+
+    // const polls: Poll[] = [
+    //     {
+    //         id: '1',
+    //         title: 'Title of Poll',
+    //         instruction: 'Select one',
+    //         options: [
+    //             { id: '1', text: 'Option 1 goes here', votes: 40 },
+    //             { id: '2', text: 'Option 2 goes here', votes: 60 },
+    //             { id: '3', text: 'Option 3 goes here', votes: 80 },
+    //         ],
+    //     },
+    //     {
+    //         id: '2',
+    //         title: 'Title of Poll',
+    //         instruction: 'Select one',
+    //         options: [
+    //             { id: '1', text: 'Option 1 goes here', votes: 50 },
+    //             { id: '2', text: 'Option 2 goes here', votes: 50 },
+    //         ],
+    //     },
+    //     {
+    //         id: '3',
+    //         title: 'Title of Poll',
+    //         instruction: 'Select one',
+    //         options: [
+    //             { id: '1', text: 'Option 1 goes here', votes: 70 },
+    //             { id: '2', text: 'Option 2 goes here', votes: 30 },
+    //         ],
+    //     },
+    // ];
 
     return (
         <ThemedView style={styles.container}>
@@ -151,7 +175,7 @@ export default function PollsScreen() {
 
             <FlatList
                 data={ polls }
-                renderItem={({ item }) => <PollItem poll={item} />}
+                renderItem={({ item }) => <PollItem poll={item} options={options?.filter((option: any) => option.pollId === item._id)} />}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.pollList}
             />
