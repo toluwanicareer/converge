@@ -18,7 +18,7 @@
       "infoPlist": {
         "NSMotionUsageDescription": "Needs Permission for Steps"
       },
-      "bundleIdentifier": "com.anonymous.converge"
+      "bundleIdentifier": "com.accessbankplc.converge"
     },
     "android": {
       "googleServicesFile": "./google-services.json",
@@ -26,7 +26,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.converge"
+      "package": "com.accessbankplc.converge"
     },
     "web": {
       "bundler": "metro",
