@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { useNavigation } from '@react-navigation/native';
 import firedb from "@react-native-firebase/database";
 import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
 // import { supabase } from '../lib/supabase';
@@ -24,7 +25,7 @@ export default function LoginScreen() {
     const [passwordValid, setPasswordValid] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const colorScheme = useColorScheme();
-    
+    const navigation = useNavigation();
     
     
     const handleSendOTP = async () => {
@@ -76,7 +77,8 @@ export default function LoginScreen() {
         return emailRegex.test(email);
     };
 
-    const handleLogin = async () => {
+    const handleRegister = async () => {
+        router.push('home')
         if (emailValid && passwordValid) {
             console.log('Sign In Methods');
             try {
@@ -121,7 +123,7 @@ export default function LoginScreen() {
             </View>
             {!emailValid && <ThemedText style={styles.errorText}>Please enter a valid email</ThemedText>}
             <View style={styles.inputContainer}>
-                <FontAwesome6 name="person" size={24} color={Colors[colorScheme ?? 'light'].text} style={styles.inputIcon} />
+                <FontAwesome6 name="person" size={24} color={Colors[colorScheme ?? 'light'].text} style={styles.personIcon} />
                 <TextInput
                     style={[styles.input, !emailValid && styles.inputError]}
                     placeholder="Username"
@@ -209,7 +211,7 @@ export default function LoginScreen() {
             
             <TouchableOpacity
                 style={[styles.loginButton, isLoading && styles.disabledButton]}
-                onPress={handleLogin}
+                onPress={handleRegister}
                 disabled={isLoading}
             >
                 <ThemedText style={styles.loginButtonText}>
@@ -261,6 +263,9 @@ const styles = StyleSheet.create({
     },
     inputIcon: {
         marginRight: 10,
+    },
+    personIcon: {
+        marginRight: 20,
     },
     errorText: {
         color: 'red',

@@ -3,9 +3,11 @@ import { StyleSheet, TextInput, TouchableOpacity, Alert, View, Image, Pressable 
 import { router, Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import firedb from "@react-native-firebase/database";
-import { useNavigation } from "@react-navigation/native"
-import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
+// import firedb from "@react-native-firebase/database";
+import { useNavigation } from "@react-navigation/native";
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
 // import { supabase } from '../lib/supabase';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -19,10 +21,13 @@ export default function LoginScreen() {
     const [emailValid, setEmailValid] = useState(true);
     const [passwordValid, setPasswordValid] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const colorScheme = useColorScheme();
     const navigation = useNavigation();
     
-    
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(!isPasswordVisible);
+    };
     
     const handleSendOTP = async () => {
         if (!email) {
@@ -60,13 +65,11 @@ export default function LoginScreen() {
             // Navigate to OTP screen
             router.push('/otp');
         } catch (error) {
-            console.error('Error in login process:', error);
-            // Handle error (show error message to user)
 
         } finally {
             setIsLoading(false);
-        }
-    };
+        };
+    }
 
     const validateEmail = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -75,12 +78,33 @@ export default function LoginScreen() {
 
     const handleLogin = async () => {
         if (emailValid && passwordValid) {
-            console.log('Sign In Methods');
+            
             try {
-                
+                setIsLoading(true);
+                // Replace with your server's login endpoint
+                const response = await axios.post('http://192.168.43.152:3000/user/login', {
+                    email, 
+                    password
+                });
 
-            } catch (error) {
-                Alert.alert('I dey');
+                const {data, status} = await response;
+                console.log('Data', data.data);
+                if (status === 200) {
+                    setIsLoading(false);
+                    // AsyncStorage.setItem(userDetails)
+                    // Login successful, store token/session and navigate
+                    // Example: await AsyncStorage.setItem('token', data.token);
+                    router.push('/home'); // Replace with your desired route
+                } else {
+                    setIsLoading(false);
+                    Alert.alert('Login failed', data.message);
+                }
+
+
+            } catch (error: any) {
+                setIsLoading(false);
+                Alert.alert('Error', error.message);
+                console.log('I dey', error);
             }
         }
         //Check if user exists.
@@ -118,7 +142,15 @@ export default function LoginScreen() {
             </View>
             {!emailValid && <ThemedText style={styles.errorText}>Please enter a valid email</ThemedText>}
             <View style={styles.inputContainer}>
-                <AntDesign name="eyeo" size={24} color="black" style={styles.inputIcon} />
+            <TouchableOpacity onPress={togglePasswordVisibility}>
+                    <AntDesign 
+                        name={isPasswordVisible ? "eye" : "eyeo"} 
+                        size={24} 
+                        color={Colors[colorScheme ?? 'light'].text} 
+                        style={styles.inputIcon} 
+                    />
+            </TouchableOpacity>
+                {/* <AntDesign name={isPasswordVisible ? "eye" : "eyeo"}  size={24} color="black" style={styles.inputIcon} /> */}
                 <TextInput
                     style={[styles.input, !passwordValid && styles.inputError]}
                     placeholder="Password"
@@ -135,6 +167,7 @@ export default function LoginScreen() {
                     }}
                     keyboardType="default"
                     autoCapitalize="none"
+                    secureTextEntry={!isPasswordVisible}
                     editable={!isLoading}
                 />
             </View>
@@ -146,7 +179,7 @@ export default function LoginScreen() {
                 disabled={isLoading}
             >
                 <ThemedText style={styles.loginButtonText}>
-                    {isLoading ? 'Processing...' : 'Login'}
+                    {isLoading ? 'Authenticating...' : 'Login'}
                 </ThemedText>
             </TouchableOpacity>
 
