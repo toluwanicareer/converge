@@ -91,7 +91,7 @@ export default function LoginScreen() {
                 const {data, status} = response;
                 console.log(data)
                 AsyncStorage.setItem('session',JSON.stringify(data.data))
-                if( !data.passwordChanged) {
+                if( !data.data.passwordChanged) {
                     router.push('/change-password');
                     return
                 }
@@ -253,8 +253,8 @@ const styles = StyleSheet.create({
     logoImage: {
         justifyContent: 'center',
         resizeMode: 'contain',
-        width: 200,
-        height: 35,
+        width: 300,
+        height: 45,
         // backgroundColor: 'red'
     },
     navigationText: {
