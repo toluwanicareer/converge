@@ -49,7 +49,7 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
             const { email } = JSON.parse(data);
 
             const payload: IAnnouncement = {
-                recipient: email,
+                recipient: attendee.user_id.email,
                 title: 'Announcement',
                 description: message,
                 location: ''
@@ -148,6 +148,7 @@ export default function AttendeesScreen() {
             try {
                 const response = await fetch(`${BaseUrl}/attendee`);
                 const data = await response.json();
+                console.log('Attendees', data.data)
                 setAttendees(data.data);
             } catch (error) {
                 console.error('Error loading attendees:', error);
