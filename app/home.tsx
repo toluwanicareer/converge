@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 16,
         fontWeight: '900',
-        fontFamily: "Inter_900Black",
+        // fontFamily: "Inter_900Black",
         color: 'white',
         marginBottom: 5,
 
