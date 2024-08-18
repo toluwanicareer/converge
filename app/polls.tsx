@@ -28,7 +28,10 @@ const PollItem: React.FC<{ poll: any, options: any, vote: any }> = ({ poll, opti
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [voterTracker, setVoterTracker] = useState<any>([]);
     const [pollAnswers, setPollAnswers] = useState<any>([]);
-
+    const [modalVisible, setModalVisible] = useState(false);
+    const [confirmOption, setConfirmOption] = useState<string | null>(null);
+    
+    
     const hasUserVotted = (pollId: number) => {
 
         if (voterTracker.includes(pollId)) {
