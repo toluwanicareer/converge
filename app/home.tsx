@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, ImageBackground, SafeAreaView, Image } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,6 +11,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { Href } from 'expo-router';
 // import { useSession } from '@/context/auth/auth';
 import useSession from '@/hooks/useSession';
+import { NotificationContext } from '@/context/auth/app';
 
 interface NavCardProps {
     title: string;
@@ -36,6 +37,8 @@ export default function HomeScreen() {
     const userName = "Tolulope Esther"; // This should be fetched from user state or context
     const { session, loading: sessionIsFetching } = useSession();
     const [userData, setUserData] = useState<any>(null);
+    const ctx = useContext(NotificationContext);
+
 
     useEffect(() => {
 
@@ -63,9 +66,9 @@ export default function HomeScreen() {
                 <TouchableOpacity onPress={() => router.push('/announcements')}>
                     <View style={styles.notificationIconContainer}>
                         <Ionicons name="notifications-outline" size={24} color="#000" />
-                        {/* <View style={styles.notificationBadge}>
-                            <ThemedText style={styles.notificationBadgeText}>2</ThemedText>
-                        </View> */}
+                        <View style={styles.notificationBadge}>
+                            <ThemedText style={styles.notificationBadgeText}>{ctx?.notificationCount}</ThemedText>
+                        </View>
                     </View>
                 </TouchableOpacity>
                 {/* <Ionicons name="person-circle-outline" size={24} color="#000" /> */}

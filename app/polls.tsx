@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, FlatList, TouchableOpacity, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -30,8 +30,7 @@ const PollItem: React.FC<{ poll: any, options: any, vote: any }> = ({ poll, opti
     const [pollAnswers, setPollAnswers] = useState<any>([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [confirmOption, setConfirmOption] = useState<string | null>(null);
-    
-    
+
     const hasUserVotted = (pollId: number) => {
 
         if (voterTracker.includes(pollId)) {
@@ -40,8 +39,28 @@ const PollItem: React.FC<{ poll: any, options: any, vote: any }> = ({ poll, opti
         return false;
     }
 
+    const handleCancelVote = () => {
+        setModalVisible(false); // Hide modal if cancelled
+    };
+
+    const handleOptionSelectNew = (pollId: string, optionId: string) => {
+        if (hasUserVotted(poll.id)) {
+            console.log('User has already voted');
+            return;
+        }
+        setSelectedOption(optionId);
+        setConfirmOption(optionId); // Set option to confirm
+        setModalVisible(true); // Show confirmation modal
+    };
+
+    const handleConfirmVote = () => {
+
+    }
+
+
     const handleOptionSelect = async (pollId: string, optionId: string) => {
         console.log('Voting for option', optionId);
+        setModalVisible(false);
         if (hasUserVotted(poll._id)) {
             console.log('User has already voted');
             return;
@@ -116,7 +135,7 @@ const PollItem: React.FC<{ poll: any, options: any, vote: any }> = ({ poll, opti
                     <TouchableOpacity
                         key={option._id}
                         style={styles.optionItem}
-                        onPress={() => handleOptionSelect(poll._id, option._id)}
+                        onPress={() => handleOptionSelectNew(poll._id, option._id)}
                     >
                         <View>
                             <View style={{ display: "flex", flexDirection: "row", gap: 10, alignItems: "center" }}>
@@ -139,6 +158,27 @@ const PollItem: React.FC<{ poll: any, options: any, vote: any }> = ({ poll, opti
                     </TouchableOpacity>
                 )
             })}
+
+            {/* Confirmation Modal */}
+            <Modal
+                transparent={true}
+                visible={modalVisible}
+                animationType="slide"
+                onRequestClose={handleCancelVote}
+            >
+                <View style={styles.modalView}>
+                    <ThemedText style={styles.modalTitle}>Confirm Your Vote</ThemedText>
+                    <ThemedText style={styles.modalText}>Are you sure?</ThemedText>
+                    <View style={styles.modalButtons}>
+                        <TouchableOpacity style={styles.confirmButton} onPress={() => handleOptionSelect(poll._id, selectedOption ?? '')}>
+                            <ThemedText style={styles.buttonText}>Yes</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.cancelButton} onPress={handleCancelVote}>
+                            <ThemedText style={styles.buttonText}>No</ThemedText>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -271,5 +311,47 @@ const styles = StyleSheet.create({
         height: '100%',
         backgroundColor: '#FF8200',
         borderRadius: 3,
+    },
+    modalView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        padding: 20,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: 'white',
+    },
+    modalText: {
+        fontSize: 16,
+        color: 'white',
+        marginBottom: 20,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+    confirmButton: {
+        backgroundColor: '#003883',
+        padding: 10,
+        borderRadius: 8,
+        flex: 1,
+        marginRight: 5,
+    },
+    cancelButton: {
+        backgroundColor: 'red',
+        padding: 10,
+        borderRadius: 8,
+        flex: 1,
+        marginLeft: 5,
+    },
+    buttonText: {
+        color: 'white',
+        textAlign: 'center',
+        fontWeight: 'bold',
     },
 });

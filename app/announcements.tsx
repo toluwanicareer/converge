@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { StyleSheet, View, FlatList, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -8,6 +8,8 @@ import { ThemedView } from '@/components/ThemedView';
 import { Colors, BaseUrl } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NotificationContext } from '@/context/auth/app';
+
 
 type Announcement = {
     id: string;
@@ -53,40 +55,43 @@ export default function AnnouncementsScreen() {
     const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const colorScheme = useColorScheme() ?? 'light'; // Default to 'light' if colorScheme is null
-
+    const ctx = useContext(NotificationContext);
+    
+    console.log('T', ctx?.announcements)
     useEffect(() => {
+        ctx?.updateNotificationCount(0);
         // Initial fetch
-        fetchAnnouncements();
+        // fetchAnnouncements();
 
-        // Set up interval to refresh announcements every 10 seconds
-        const interval = setInterval(() => {
-            fetchAnnouncements();
-        }, 10000);
+        // // Set up interval to refresh announcements every 10 seconds
+        // const interval = setInterval(() => {
+        //     fetchAnnouncements();
+        // }, 10000);
 
-        // Clean up the interval on component unmount
-        return () => clearInterval(interval);
+        // // Clean up the interval on component unmount
+        // return () => clearInterval(interval);
     }, []);
 
-    const fetchAnnouncements = async () => {
-        const session = await AsyncStorage.getItem('session');
+    // const fetchAnnouncements = async () => {
+    //     const session = await AsyncStorage.getItem('session');
 
-        if( session ) {
-            const { email } = JSON.parse(session);
-            // Here you would typically make an API call to fetch the latest announcements
-            // const response = await fetch(`${BaseUrl}/announcement`);
-            const response = await fetch(`${BaseUrl}/announcement`, {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json', 
-                },
-                body: JSON.stringify({
-                    email 
-                }),
-            });
-            const data = await response.json();
-            setAnnouncements(data.data);
-        }
-    };
+    //     if( session ) {
+    //         const { email } = JSON.parse(session);
+    //         // Here you would typically make an API call to fetch the latest announcements
+    //         // const response = await fetch(`${BaseUrl}/announcement`);
+    //         const response = await fetch(`${BaseUrl}/announcement`, {
+    //             method: 'POST', 
+    //             headers: {
+    //                 'Content-Type': 'application/json', 
+    //             },
+    //             body: JSON.stringify({
+    //                 email 
+    //             }),
+    //         });
+    //         const data = await response.json();
+    //         setAnnouncements(data.data);
+    //     }
+    // };
 
     const renderHeader = () => (
         <View style={styles.header}>
@@ -94,7 +99,7 @@ export default function AnnouncementsScreen() {
                 <Ionicons name="arrow-back" size={24} color={Colors[colorScheme].text} />
                 <ThemedText style={styles.backText}>Back</ThemedText>
             </TouchableOpacity>
-            <ThemedText style={styles.headerTitle}>Announcements</ThemedText>
+            <ThemedText style={styles.headerTitle}>Inbox</ThemedText>
         </View>
     );
 
@@ -111,7 +116,7 @@ export default function AnnouncementsScreen() {
         <ThemedView style={styles.container}>
             {renderHeader()}
             <FlatList
-                data={announcements}
+                data={ctx?.announcements}
                 renderItem={({ item }) => (
                     <AnnouncementItem
                         announcement={item}
