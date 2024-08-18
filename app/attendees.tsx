@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, FlatList, TextInput, TouchableOpacity, Image, Linking } from 'react-native';
+import { StyleSheet, View, FlatList, TextInput, TouchableOpacity, Image, Linking, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
@@ -32,13 +32,17 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
                 <ThemedText style={styles.attendeeEmail}>{attendee.user_id.email}</ThemedText>
                 <ThemedText style={styles.attendeePhone}>{attendee.user_id.phoneNum}</ThemedText>
                 <View style={styles.contactButtons}>
-                    <TouchableOpacity onPress={() => console.log('Email pressed')}>
-                        <Ionicons name="mail-outline" size={20} color="#000" />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => console.log('Phone pressed')}>
+                    <TouchableOpacity onPress={() => openUrl(
+                        Platform.OS === 'ios' ? `tel:${attendee.user_id.phoneNum}` : `telprompt:${attendee.user_id.phoneNum}`
+
+                    )}>
                         <Ionicons name="call-outline" size={20} color="#000" />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => console.log('WhatsApp pressed')}>
+                    <TouchableOpacity onPress={() => openUrl(
+                        Platform.OS === 'ios' ? `message:${attendee.user_id.email}` : `mailto:${attendee.user_id.email}`)}>
+                        <Ionicons name="mail-outline" size={20} color="#000" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => openUrl(`https://api.whatsapp.com/send?phone=${attendee.user_id.phoneNum}`)}>
                         <Ionicons name="logo-whatsapp" size={20} color="#000" />
                     </TouchableOpacity>
                 </View>
