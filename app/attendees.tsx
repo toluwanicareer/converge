@@ -31,7 +31,7 @@ interface IAnnouncement {
 const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [message, setMessage] = useState('');
-    const [fadeAnim] = useState(new Animated.Value(0)); 
+    const [fadeAnim] = useState(new Animated.Value(0));
     const toast = useToast();
     const openUrl = (url: string) => {
         Linking.openURL(url);
@@ -45,7 +45,7 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
 
         const data = await AsyncStorage.getItem('session');
 
-        if ( data ) {
+        if (data) {
             const { email } = JSON.parse(data);
 
             const payload: IAnnouncement = {
@@ -54,22 +54,23 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
                 description: message,
                 location: ''
             }
-            const response = await axios.post(`${BaseUrl}/announcement`, {
-             ...payload
+            console.log('Payload', payload)
+            const response = await axios.post(`${BaseUrl}/announcement/create`, {
+                ...payload
             });
 
-            if ( response.status === 200) {
+            if (response.status === 200) {
                 toast.show('Annoucement created successully', {
                     type: 'success'
                 })
                 setModalVisible(false);
                 // showAlert('Message sent successfully!');
-            }else {
+            } else {
                 toast.show('Something went wrong. Please try again', {
                     type: 'danger'
                 })
             }
-            
+
         }
         // // Send the email
         // const url = `mailto:${attendee.user_id.email}?subject=Message from ${attendee.user_id.name}&body=${message}`;
@@ -84,7 +85,7 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
 
         // Reset message and close modal
         setMessage('');
-        
+
     };
 
     return (
