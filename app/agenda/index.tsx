@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Dimensions, ScrollView, TouchableOpacity, Modal, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Carousel from 'react-native-reanimated-carousel';
@@ -8,6 +8,10 @@ import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { router } from 'expo-router';
+import axios from 'axios';
+import { getApi } from '@/api/api';
+import NoData from '@/components/NoData';
+
 
 interface AgendaItem {
     id: string;
@@ -25,6 +29,16 @@ interface AgendaItem {
     }[];
 }
 
+interface IAgenda {
+    _id: string;
+    createdAt: string;
+    date: string;
+    location:string;
+    time: string;
+    title: string;
+    updatedAt: string;
+}
+
 const { width: screenWidth } = Dimensions.get('window');
 const ITEM_WIDTH = screenWidth * 0.9;
 const ITEM_HEIGHT = ITEM_WIDTH * 2;
@@ -32,7 +46,26 @@ const ITEM_HEIGHT = ITEM_WIDTH * 2;
 const AgendaScreen = () => {
     const colorScheme = useColorScheme();
     const [modalVisible, setModalVisible] = useState<boolean>(false);
-    const [selectedItem, setSelectedItem] = useState<AgendaItem | null>(null);
+    const [selectedItem, setSelectedItem] = useState<IAgenda[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [allAgenda, setAllAgenda ] = useState<IAgenda[]>([])
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const response = await getApi('/agenda/all');
+            // console.log('Data', response)
+             if ( response ) {
+                const { data } = response;
+                setAllAgenda(data.data);
+                return
+             }
+
+             setAllAgenda([]);
+        }
+
+
+        fetchData()
+    }, [])
 
     const agendaItems: AgendaItem[] = [
         {
@@ -74,9 +107,9 @@ const AgendaScreen = () => {
         // Add more agenda items as needed
     ];
 
-    const handleShowDetails = (item: AgendaItem) => {
-        setSelectedItem(item);
-        router.push(`/agenda/${item.id}`);
+    const handleShowDetails = (eventId: string) => {
+        // setSelectedItem(item);
+        router.push(`/agenda/${eventId}`);
     };
 
     return (
@@ -88,58 +121,64 @@ const AgendaScreen = () => {
                 <ThemedText style={styles.headerTitle}>Agenda</ThemedText>
             </View>
 
-            <Carousel
-                loop={false}
-                width={screenWidth}
-                height={ITEM_HEIGHT}
-                style={styles.carousel}
-                defaultIndex={0}
-                data={agendaItems}
-                scrollAnimationDuration={1000}
-                renderItem={({ item }) => (
-                    <View style={styles.card}>
-                        <ScrollView style={styles.cardContent}>
-                            <ThemedText style={styles.dayText}>{item.day}</ThemedText>
-                            <ThemedText style={styles.titleText}>{item.title}</ThemedText>
-                            <View style={styles.detailsContainer}>
-                                <View style={styles.detailItem}>
-                                    <Ionicons name="calendar-outline" size={20} color="rgba(255, 130, 0, 1)" />
-                                    <View>
-                                        <ThemedText style={styles.detailText}>{item.date}</ThemedText>
-                                        <ThemedText style={styles.detailLabel}>Date</ThemedText>
+           {  
+                allAgenda.length === 0 
+                ? <NoData/> 
+                :
+                    <Carousel
+                        loop={false}
+                        width={screenWidth}
+                        height={ITEM_HEIGHT}
+                        style={styles.carousel}
+                        defaultIndex={0}
+                        data={allAgenda}
+                        scrollAnimationDuration={1000}
+                        renderItem={({ item }) => (
+                            <View style={styles.card}>
+                                <ScrollView style={styles.cardContent}>
+                                    <ThemedText style={styles.dayText}>{item.date.split('T')[0]}</ThemedText>
+                                    {/* <ThemedText style={styles.dayText}>{item.day}</ThemedText> */}
+                                    <ThemedText style={styles.titleText}>{item.title}</ThemedText>
+                                    <View style={styles.detailsContainer}>
+                                        <View style={styles.detailItem}>
+                                            <Ionicons name="calendar-outline" size={20} color="rgba(255, 130, 0, 1)" />
+                                            <View>
+                                                <ThemedText style={styles.detailText}>{item.date.split('T')[0]}</ThemedText>
+                                                <ThemedText style={styles.detailLabel}>Date</ThemedText>
+                                            </View>
+                                        </View>
+                                        <View style={styles.detailItem}>
+                                            <Ionicons name="location-outline" size={20} color="rgba(255, 130, 0, 1)" />
+                                            <View>
+                                                <ThemedText style={styles.detailText}>{item.location}</ThemedText>
+                                                <ThemedText style={styles.detailLabel}>Location</ThemedText>
+                                            </View>
+                                        </View>
+                                        <View style={styles.detailItem}>
+                                            <Ionicons name="time-outline" size={20} color="rgba(255, 130, 0, 1)" />
+                                            <View>
+                                                <ThemedText style={styles.detailText}>{item.time}</ThemedText>
+                                                <ThemedText style={styles.detailLabel}>Time</ThemedText>
+                                            </View>
+                                        </View>
                                     </View>
-                                </View>
-                                <View style={styles.detailItem}>
-                                    <Ionicons name="location-outline" size={20} color="rgba(255, 130, 0, 1)" />
-                                    <View>
-                                        <ThemedText style={styles.detailText}>{item.location}</ThemedText>
-                                        <ThemedText style={styles.detailLabel}>Location</ThemedText>
-                                    </View>
-                                </View>
-                                <View style={styles.detailItem}>
-                                    <Ionicons name="time-outline" size={20} color="rgba(255, 130, 0, 1)" />
-                                    <View>
-                                        <ThemedText style={styles.detailText}>{item.time}</ThemedText>
-                                        <ThemedText style={styles.detailLabel}>Time</ThemedText>
-                                    </View>
-                                </View>
-                            </View>
 
-                            <TouchableOpacity
-                                style={styles.readMoreButton}
-                                onPress={() => handleShowDetails(item)}
-                            >
-                                <ThemedText style={styles.readMoreText}>Read More Details</ThemedText>
-                            </TouchableOpacity>
-                        </ScrollView>
-                    </View>
-                )}
-                mode="parallax"
-                customConfig={() => ({ type: 'positive', viewCount: 2 })}
-            />
+                                    <TouchableOpacity
+                                        style={styles.readMoreButton}
+                                        onPress={() => handleShowDetails(item._id)}
+                                    >
+                                        <ThemedText style={styles.readMoreText}>Read More Details</ThemedText>
+                                    </TouchableOpacity>
+                                </ScrollView>
+                            </View>
+                        )}
+                        mode="parallax"
+                        customConfig={() => ({ type: 'positive', viewCount: 2 })}
+                    />
+            }
 
             {/* Modal for additional details */}
-            <Modal
+            {/* <Modal
                 visible={modalVisible}
                 transparent={true}
                 animationType="slide"
@@ -150,7 +189,7 @@ const AgendaScreen = () => {
                         <ScrollView contentContainerStyle={styles.modalScrollView}>
                             {selectedItem && (
                                 <>
-                                    <ThemedText style={styles.modalDayText}>{selectedItem.day}</ThemedText>
+                                    <ThemedText style={styles.modalDayText}>{selectedItem.date.split('T')[0]}</ThemedText>
                                     <ThemedText style={styles.modalTitleText}>{selectedItem.title}</ThemedText>
                                     <View style={styles.modalDetailsContainer}>
                                         <View style={styles.modalDetailItem}>
@@ -199,7 +238,7 @@ const AgendaScreen = () => {
                         </TouchableOpacity>
                     </View>
                 </View>
-            </Modal>
+            </Modal> */}
         </ThemedView>
     );
 };

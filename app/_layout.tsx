@@ -12,6 +12,7 @@ import { SessionProvider , useSession } from '@/context/auth/auth';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import ProtectedRoutes from '@/context/auth/Protected';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -38,6 +39,9 @@ export default function RootLayout() {
   }
 
   return (
+    <GestureHandlerRootView>
+
+   
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack
         initialRouteName={login ? 'home' : 'index'}
@@ -53,7 +57,8 @@ export default function RootLayout() {
         <Stack.Screen name="directors" options={{ headerShown: false }} />
         <Stack.Screen name="polls" options={{ headerShown: false }} />
         <Stack.Screen name="questions" options={{ headerShown: false }} />
-        <Stack.Screen name="agenda" options={{ headerShown: false }} />
+        <Stack.Screen name="agenda" options={{ headerShown: true }} />
+        {/* <Stack.Screen name="agenda/[eventId]" options={{ headerShown: false }} /> */}
         <Stack.Screen name="announcements" options={{ headerShown: false }} />
           {/* <ProtectedRoutes> */}
               {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -62,6 +67,7 @@ export default function RootLayout() {
         </Stack>
        
     </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
 

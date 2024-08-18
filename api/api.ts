@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Alert } from 'react-native';
 
 // Create an instance of axios
 const apiClient = axios.create({
@@ -8,6 +9,8 @@ const apiClient = axios.create({
   },
 });
 
+
+
 // Function to handle sign in
 export const signIn = async (email: string, password: string) => {
   const response = await apiClient.post('/user/login', { email, password });
@@ -16,6 +19,16 @@ export const signIn = async (email: string, password: string) => {
 
 // Function to handle sign out (if necessary)
 export const signOut = async () => {
-  const response = await apiClient.post('/auth/logout'); // Example API call
+  const response = await apiClient.post('/auth/logout'); 
   return response.data;
 };
+
+export const getApi = async (url: string) => {
+    try {
+        const response = await apiClient.get(`${url}`); 
+        return response;
+        
+    } catch (error: any) {
+        Alert.alert('Error', error.message)
+    }
+}

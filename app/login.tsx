@@ -89,6 +89,7 @@ export default function LoginScreen() {
                 });
 
                 const {data, status} = response;
+                setIsLoading(false);
                 console.log(data)
                 AsyncStorage.setItem('session',JSON.stringify(data.data))
                 if( !data.data.passwordChanged) {
@@ -119,7 +120,7 @@ export default function LoginScreen() {
                 <Ionicons name="mail-outline" size={24} color={Colors[colorScheme ?? 'light'].text} style={styles.inputIcon} />
                 <TextInput
                     style={[styles.input, !emailValid && styles.inputError]}
-                    placeholder="Email address"
+                    placeholder="Enter email address"
                     placeholderTextColor={Colors[colorScheme ?? 'light'].text}
                     value={email}
                     onChangeText={(text) => {
@@ -148,7 +149,7 @@ export default function LoginScreen() {
                 {/* <AntDesign name={isPasswordVisible ? "eye" : "eyeo"}  size={24} color="black" style={styles.inputIcon} /> */}
                 <TextInput
                     style={[styles.input, !passwordValid && styles.inputError]}
-                    placeholder="Password"
+                    placeholder="Enter Password"
                     placeholderTextColor={Colors[colorScheme ?? 'light'].text}
                     value={password}
                     onChangeText={(text) => {
