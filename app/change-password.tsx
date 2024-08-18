@@ -100,15 +100,14 @@ export default function ChangePasswordScreen() {
                 const data = await AsyncStorage.getItem('session');
                 if (data) {
                     const { email } = JSON.parse(data);
-                    console.log('Confirm Password', email);
+                
 
                     const response = await axios.post(`${BaseUrl}/user/change-pass`, {
                         email,
                         password
                     });
 
-                    // const { data, status } = response;
-                    console.log('Res', response.status);
+                   
                     if (response.status === 200) {
                         router.push('/home')
                     }

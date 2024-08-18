@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors, BaseUrl } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Announcement = {
     id: string;
@@ -67,10 +68,24 @@ export default function AnnouncementsScreen() {
     }, []);
 
     const fetchAnnouncements = async () => {
-        // Here you would typically make an API call to fetch the latest announcements
-        const response = await fetch(`${BaseUrl}/announcement`);
-        const data = await response.json();
-        setAnnouncements(data.data);
+        const session = await AsyncStorage.getItem('session');
+
+        if( session ) {
+            const { email } = JSON.parse(session);
+            // Here you would typically make an API call to fetch the latest announcements
+            // const response = await fetch(`${BaseUrl}/announcement`);
+            const response = await fetch(`${BaseUrl}/announcement`, {
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json', 
+                },
+                body: JSON.stringify({
+                    email 
+                }),
+            });
+            const data = await response.json();
+            setAnnouncements(data.data);
+        }
     };
 
     const renderHeader = () => (

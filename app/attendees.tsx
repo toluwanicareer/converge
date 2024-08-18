@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, FlatList, TextInput, TouchableOpacity, Image, Linking, Platform } from 'react-native';
+import { StyleSheet, View, FlatList, TextInput, Animated, TouchableOpacity, Image, Linking, Platform, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors, BaseUrl } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import axios from 'axios';
+import { useToast } from 'react-native-toast-notifications';
 
 interface Attendee {
     id: string;
@@ -18,11 +21,72 @@ interface Attendee {
     image: string;
 }
 
-const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
+interface IAnnouncement {
+    title: string;
+    description: string;
+    location: string;
+    recipient: string;
+}
 
-    const openUrl = (url) => {
+const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
+    const [modalVisible, setModalVisible] = useState(false);
+    const [message, setMessage] = useState('');
+    const [fadeAnim] = useState(new Animated.Value(0)); 
+    const toast = useToast();
+    const openUrl = (url: string) => {
         Linking.openURL(url);
-    }
+    };
+
+    const handleSendEmail = async () => {
+        if (!message.trim()) {
+            Alert.alert("Please enter a message.");
+            return;
+        }
+
+        const data = await AsyncStorage.getItem('session');
+
+        if ( data ) {
+            const { email } = JSON.parse(data);
+
+            const payload: IAnnouncement = {
+                recipient: email,
+                title: 'Announcement',
+                description: message,
+                location: ''
+            }
+            const response = await axios.post(`${BaseUrl}/announcement`, {
+             ...payload
+            });
+
+            if ( response.status === 200) {
+                toast.show('Annoucement created successully', {
+                    type: 'success'
+                })
+                setModalVisible(false);
+                // showAlert('Message sent successfully!');
+            }else {
+                toast.show('Something went wrong. Please try again', {
+                    type: 'danger'
+                })
+            }
+            
+        }
+        // // Send the email
+        // const url = `mailto:${attendee.user_id.email}?subject=Message from ${attendee.user_id.name}&body=${message}`;
+        // openUrl(url);
+
+        // // Save the message using AsyncStorage
+        // try {
+        //     await AsyncStorage.setItem('lastMessage', message);
+        // } catch (error) {
+        //     console.error('Error saving message:', error);
+        // }
+
+        // Reset message and close modal
+        setMessage('');
+        
+    };
+
     return (
         <View style={styles.attendeeItem}>
             <Image source={{ uri: attendee.user_id.pix }} style={styles.attendeeImage} />
@@ -33,13 +97,10 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
                 <ThemedText style={styles.attendeePhone}>{attendee.user_id.phoneNum}</ThemedText>
                 <View style={styles.contactButtons}>
                     <TouchableOpacity onPress={() => openUrl(
-                        Platform.OS === 'ios' ? `tel:${attendee.user_id.phoneNum}` : `telprompt:${attendee.user_id.phoneNum}`
-
-                    )}>
+                        Platform.OS === 'ios' ? `tel:${attendee.user_id.phoneNum}` : `telprompt:${attendee.user_id.phoneNum}`)}>
                         <Ionicons name="call-outline" size={20} color="#000" />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => openUrl(
-                        Platform.OS === 'ios' ? `message:${attendee.user_id.email}` : `mailto:${attendee.user_id.email}`)}>
+                    <TouchableOpacity onPress={() => setModalVisible(true)}>
                         <Ionicons name="mail-outline" size={20} color="#000" />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => openUrl(`https://api.whatsapp.com/send?phone=${attendee.user_id.phoneNum}`)}>
@@ -47,14 +108,39 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
                     </TouchableOpacity>
                 </View>
             </View>
+
+            {/* Popup Modal for sending a message */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalView}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Type your message here"
+                        value={message}
+                        onChangeText={setMessage}
+                    />
+                    <View style={styles.buttonRow}>
+                        <TouchableOpacity style={styles.sendButton} onPress={handleSendEmail}>
+                            <ThemedText style={styles.buttonText}>Send</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.sendButton, styles.cancelButton]} onPress={() => setModalVisible(false)}>
+                            <ThemedText style={styles.buttonText}>Cancel</ThemedText>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
-    )
+    );
 };
+
 
 export default function AttendeesScreen() {
     const [searchQuery, setSearchQuery] = useState('');
     const colorScheme = useColorScheme();
-
     const [attendees, setAttendees] = useState<any[]>([]);
 
     useEffect(() => {
@@ -63,15 +149,12 @@ export default function AttendeesScreen() {
                 const response = await fetch(`${BaseUrl}/attendee`);
                 const data = await response.json();
                 setAttendees(data.data);
-
             } catch (error) {
                 console.error('Error loading attendees:', error);
             }
-        }
+        };
         loadAttendees();
     }, []);
-
-
 
     return (
         <ThemedView style={styles.container}>
@@ -152,7 +235,6 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 15,
         marginBottom: 15,
-        //elevation: 2,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -194,5 +276,40 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: 120,
+    },
+    modalView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        padding: 20,
+    },
+    input: {
+        backgroundColor: 'white',
+        padding: 10,
+        borderRadius: 8,
+        marginBottom: 10,
+        width: '100%',
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+    sendButton: {
+        backgroundColor: '#003883',
+        padding: 10,
+        borderRadius: 8,
+        flex: 1,
+        marginRight: 5,
+    },
+    cancelButton: {
+        backgroundColor: 'red',
+        marginRight: 0,
+    },
+    buttonText: {
+        color: 'white',
+        textAlign: 'center',
+        fontWeight: 'bold',
     },
 });
