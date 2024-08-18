@@ -7,25 +7,38 @@ import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useNavigation } from '@react-navigation/native';
 import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
+import axios from 'axios';
 // import { supabase } from '../lib/supabase';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function LoginScreen() {
+export default function ChangePasswordScreen() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [team, setTeam] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [emailValid, setEmailValid] = useState(true);
     const [passwordValid, setPasswordValid] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const colorScheme = useColorScheme();
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
     const navigation = useNavigation();
+    
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(!isPasswordVisible);
+    };
 
+    const toggleConfirmPasswordVisibility = () => {
+        setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
+    }
+    
 
     const handleSendOTP = async () => {
         if (!email) {
@@ -76,17 +89,46 @@ export default function LoginScreen() {
         return emailRegex.test(email);
     };
 
-    const handleRegister = async () => {
-        router.push('home')
-        if (emailValid && passwordValid) {
-            console.log('Sign In Methods');
-            try {
 
 
-            } catch (error) {
-                Alert.alert('I dey');
-            }
+    const changePassword = async () => {
+        // router.push('/home')
+        try {
+            
+            if (password === confirmPassword ) {
+
+                const data =  await AsyncStorage.getItem('session') ;
+                if ( data ) {
+                    const { email } = JSON.parse(data);
+                    console.log('Confirm Password', email);
+                    
+                    const response = await axios.post('http://192.168.43.152:3000/user/change-pass', {
+                        email, 
+                        password
+                    });
+
+                    // const { data, status } = response;
+                    console.log('Res', response.status);
+                    if ( response.status === 200 ) {
+                        router.push('/home')
+                    }
+                   
+
+
+                }
+
+                // const response = await axios.post('http://192.168.43.152:3000/user/login', {
+                //     email, 
+                //     password
+                // });
+            } 
+        } catch (error: any) {
+            console.log('RERS', error)
+            Alert.alert('Error', error.message);
         }
+        // if (emailValid && passwordValid) {
+        //     console.log('Sign In Methods');
+        // }
         //Check if user exists.
         // const auth = getAuth();
         // const signInMethods = await fetchSignInMethodsForEmail(auth, email); 
@@ -98,52 +140,18 @@ export default function LoginScreen() {
                 <Image source={require('../assets/images/converge_logo.png')} style={styles.logoImage} />
             </View>
             <ThemedText style={styles.title}>Converge</ThemedText>
-            <ThemedText style={styles.subtitle}>Fill in your details</ThemedText>
-
+            <ThemedText style={styles.subtitle}>Change your password</ThemedText>
+     
             <View style={styles.inputContainer}>
-                <Ionicons name="mail-outline" size={24} color={Colors[colorScheme ?? 'light'].text} style={styles.inputIcon} />
-                <TextInput
-                    style={[styles.input, !emailValid && styles.inputError]}
-                    placeholder="Email address"
-                    placeholderTextColor={Colors[colorScheme ?? 'light'].text}
-                    value={email}
-                    onChangeText={(text) => {
-                        setEmail(text);
-                        if (validateEmail(text)) {
-                            setEmailValid(true);
-                            return
-                        }
-                        setEmailValid(false);
-                    }}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    editable={!isLoading}
-                />
-            </View>
-            {!emailValid && <ThemedText style={styles.errorText}>Please enter a valid email</ThemedText>}
-            <View style={styles.inputContainer}>
-                <FontAwesome6 name="person" size={24} color={Colors[colorScheme ?? 'light'].text} style={styles.personIcon} />
-                <TextInput
-                    style={[styles.input, !emailValid && styles.inputError]}
-                    placeholder="Username"
-                    placeholderTextColor={Colors[colorScheme ?? 'light'].text}
-                    value={email}
-                    onChangeText={(text) => {
-                        setName(text);
-                        // if(validateEmail(text)) {
-                        //     setEmailValid(true);
-                        //     return
-                        // }
-                        // setEmailValid(false);
-                    }}
-                    keyboardType="default"
-                    autoCapitalize="none"
-                    editable={!isLoading}
-                />
-            </View>
-            {!emailValid && <ThemedText style={styles.errorText}>Please enter a valid email</ThemedText>}
-            <View style={styles.inputContainer}>
-                <AntDesign name="eyeo" size={24} color="black" style={styles.inputIcon} />
+                <TouchableOpacity onPress={togglePasswordVisibility}>
+                    <AntDesign 
+                        name={isPasswordVisible ? "eye" : "eyeo"} 
+                        size={24} 
+                        color={Colors[colorScheme ?? 'light'].text} 
+                        style={styles.inputIcon} 
+                    />
+                </TouchableOpacity>
+                {/* <AntDesign name="eyeo" size={24} color="black" style={styles.inputIcon} /> */}
                 <TextInput
                     style={[styles.input, !passwordValid && styles.inputError]}
                     placeholder="Password"
@@ -160,61 +168,53 @@ export default function LoginScreen() {
                     }}
                     keyboardType="default"
                     autoCapitalize="none"
+                    secureTextEntry={!isPasswordVisible}
                     editable={!isLoading}
                 />
             </View>
             {!passwordValid && <ThemedText style={styles.errorText}>Please enter a password</ThemedText>}
             <View style={styles.inputContainer}>
-                <Feather name="phone" size={24} color="black" style={styles.inputIcon} />
+            <TouchableOpacity onPress={toggleConfirmPasswordVisibility}>
+                <AntDesign 
+                    name={isConfirmPasswordVisible ? "eye" : "eyeo"} 
+                    size={24} 
+                    color={Colors[colorScheme ?? 'light'].text} 
+                    style={styles.inputIcon} 
+                />
+            </TouchableOpacity>
+                {/* <AntDesign name="eyeo" size={24} color="black" style={styles.inputIcon} /> */}
                 <TextInput
                     style={[styles.input, !passwordValid && styles.inputError]}
-                    placeholder="Phone Number"
+                    placeholder="Confirm Password"
                     placeholderTextColor={Colors[colorScheme ?? 'light'].text}
-                    value={phoneNumber}
+                    value={confirmPassword}
                     onChangeText={(text) => {
-                        setPhoneNumber(text);
-                        // if ( text ) {
-                        //     setPasswordValid(true);
-                        //     return
-                        // }
-                        // setPasswordValid(false);
-
+                        setConfirmPassword(text);
+                        if ( text ) {
+                            setPasswordValid(true);
+                            return
+                        }
+                        setPasswordValid(false);
+                    
                     }}
-                    keyboardType="numeric"
+                    keyboardType="default"
                     autoCapitalize="none"
+                    secureTextEntry={!isConfirmPasswordVisible}
                     editable={!isLoading}
                 />
             </View>
-            <View style={styles.inputContainer}>
-                <AntDesign name="team" size={24} color="black" style={styles.inputIcon} />
-                <TextInput
-                    style={[styles.input, !passwordValid && styles.inputError]}
-                    placeholder="Team"
-                    placeholderTextColor={Colors[colorScheme ?? 'light'].text}
-                    value={phoneNumber}
-                    onChangeText={(text) => {
-                        setPhoneNumber(text);
-                        // if ( text ) {
-                        //     setPasswordValid(true);
-                        //     return
-                        // }
-                        // setPasswordValid(false);
-
-                    }}
-                    keyboardType="numeric"
-                    autoCapitalize="none"
-                    editable={!isLoading}
-                />
-            </View>
+            {!passwordValid && <ThemedText style={styles.errorText}>Please enter a password</ThemedText>}
+       
+       
             {/* {!passwordValid && <ThemedText style={styles.errorText}>Password incorrect</ThemedText>} */}
 
             <TouchableOpacity
                 style={[styles.loginButton, isLoading && styles.disabledButton]}
-                onPress={handleRegister}
+                onPress={changePassword}
                 disabled={isLoading}
             >
                 <ThemedText style={styles.loginButtonText}>
-                    {isLoading ? 'Processing...' : 'Register'}
+                    {isLoading ? 'Processing...' : 'Change Password'}
                 </ThemedText>
             </TouchableOpacity>
             <View style={styles.navigationText}>
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     loginButton: {
-        backgroundColor: '#4B0082',
+        backgroundColor: '#FF8200',
         padding: 15,
         borderRadius: 5,
         alignItems: 'center',

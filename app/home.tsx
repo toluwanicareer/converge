@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, ImageBackground, SafeAreaView } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,8 @@ import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Href } from 'expo-router';
+// import { useSession } from '@/context/auth/auth';
+import useSession from '@/hooks/useSession';
 
 interface NavCardProps {
     title: string;
@@ -32,6 +34,18 @@ const NavCard: React.FC<NavCardProps> = ({ title, image, onPress }) => (
 export default function HomeScreen() {
     const colorScheme = useColorScheme();
     const userName = "Tolulope Esther"; // This should be fetched from user state or context
+    const { session, loading: sessionIsFetching } = useSession();
+    const [userData, setUserData] = useState<any>(null);
+    
+    useEffect(() => {
+
+        if ( session && !sessionIsFetching ) {
+            console.log('Session', session);
+            setUserData( session);
+
+        }
+
+    }, [session])
 
     const navItems = [
         { title: "Attendees", image: require('@/assets/images/1.png') },
@@ -60,7 +74,7 @@ export default function HomeScreen() {
                 headerImage={
                     <View style={styles.header}>
                         <ThemedText style={styles.welcomeText}>Welcome,</ThemedText>
-                        <ThemedText style={styles.nameText}>{userName}</ThemedText>
+                        <ThemedText style={styles.nameText}>{userData?.name}</ThemedText>
                     </View>
                 }>
                 <ThemedView style={styles.container}>

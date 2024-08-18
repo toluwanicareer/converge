@@ -7,13 +7,14 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+
 // import axios from 'axios';
 
 interface PollOption {
     id: string;
     text: string;
     progress?: number;
-    votes: number; 
+    votes: number;
 }
 
 interface Poll {
@@ -23,12 +24,18 @@ interface Poll {
     options: PollOption[];
 }
 
-const PollItem: React.FC<{ poll: any, options: any }> = ({ poll, options }) => { 
-    const [selectedOption, setSelectedOption] = useState<string | null >(null);
-    const [polls, setPolls] = useState<Poll[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [pollOptions, setPollOptions] = useState<PollOption[]>(poll.options);
-    const [error, setError] = useState<string | null>(null);
+const PollItem: React.FC<{ poll: any, options: any }> = ({ poll, options }) => {
+    const [selectedOption, setSelectedOption] = useState<string | null>(null);
+    const [voterTracker, setVoterTracker] = useState<any>([]);
+
+    const hasUserVotted = (pollId: number) => {
+        if (voterTracker.includes(pollId)) {
+            return true;
+        }
+        return false;
+    }
+
+
 
 
     useEffect(() => {
@@ -37,8 +44,6 @@ const PollItem: React.FC<{ poll: any, options: any }> = ({ poll, options }) => {
                 const storageKey = 'pollAnswers';
                 const pollAnswers = await AsyncStorage.getItem(storageKey);
                 const parsedAnswers = pollAnswers ? JSON.parse(pollAnswers) : {};
-
-                // Initialize state with no selected option if none is stored
                 setSelectedOption(parsedAnswers[poll.id] || null);
             } catch (error) {
                 console.error('Error fetching poll data from AsyncStorage:', error);
@@ -49,31 +54,12 @@ const PollItem: React.FC<{ poll: any, options: any }> = ({ poll, options }) => {
     }, [poll.id]);
 
     const handleOptionSelect = async (pollId: string, optionId: string) => {
-        try {
-            // Update the selected option
-            setSelectedOption(optionId);
-
-            // Update votes for the selected option
-            const updatedOptions = pollOptions.map(option =>
-                option.id === optionId
-                    ? { ...option, votes: option.votes + 1 }
-                    : option
-            );
-
-            setPollOptions(updatedOptions);
-
-            // Save to AsyncStorage
-            const storageKey = 'pollAnswers';
-            const pollAnswers = await AsyncStorage.getItem(storageKey);
-            const parsedAnswers = pollAnswers ? JSON.parse(pollAnswers) : {};
-
-            parsedAnswers[pollId] = optionId;
-            await AsyncStorage.setItem(storageKey, JSON.stringify(parsedAnswers));
-        } catch (error) {
-            console.error('Error saving to AsyncStorage:', error);
+        if (!hasUserVotted) {
+            return;
         }
-    };
-
+        setVoterTracker([...voterTracker, pollId]);
+        AsyncStorage.setItem('pollAnswers', JSON.stringify([...voterTracker, pollId]));
+    }
     const getProgressPercentage = (optionId: string) => {
         return selectedOption === optionId ? 100 : 0; // Progress based on selected option
     };
@@ -91,19 +77,17 @@ const PollItem: React.FC<{ poll: any, options: any }> = ({ poll, options }) => {
         <View style={styles.pollItem}>
             <ThemedText style={styles.pollTitle}>{poll.question}</ThemedText>
             <ThemedText style={styles.pollInstruction}>Select one option</ThemedText>
-            {options.map((option: any) => {
-                const progressPercentage = (option.count / getSum()) * 100;
-                
+            {options?.map((option: any) => {
+                const progressPercentage = (option.count == 0 || !hasUserVotted(poll._id)) ? 0 : (option.count / getSum()) * 100;
                 return (
-
-                    <TouchableOpacity 
-                        key={option.id} 
+                    <TouchableOpacity
+                        key={option.id}
                         style={styles.optionItem}
                         onPress={() => handleOptionSelect(poll.id, option.id)}
                     >
                         <View style={[styles.radioButton, styles.selectedRadioButton]} />
                         <View style={styles.optionContainer}>
-                            <ThemedText style={styles.optionText}>{option.text}</ThemedText>
+                            <ThemedText style={styles.optionText}>{option.option}</ThemedText>
                             <View style={styles.progressBarBackground}>
                                 <View style={[styles.progressBar, { width: `${progressPercentage}%` }]} />
                                 {/* <ThemedText style={styles.optionText}>Votes: {option.votes}</ThemedText> */}
@@ -122,16 +106,18 @@ export default function PollsScreen() {
     const [options, setOptions] = useState<any>(null);
 
     useEffect(() => {
-      getPoll()
+        console.log('Fetching polls...');
+        getPoll()
     }, [])
 
-    const getPoll = async() => {
-        const response = await fetch('http://192.168.1.129:3000/poll/with-options');
+    const getPoll = async () => {
+        const response = await fetch('http://192.168.61.14:3000/poll/with-options');
         const data = await response.json();
+        console.log(data.options);
         setPolls(data.polls);
         setOptions(data.options);
     }
-    
+
 
     // const polls: Poll[] = [
     //     {
@@ -174,7 +160,7 @@ export default function PollsScreen() {
             </View>
 
             <FlatList
-                data={ polls }
+                data={polls}
                 renderItem={({ item }) => <PollItem poll={item} options={options?.filter((option: any) => option.pollId === item._id)} />}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.pollList}
@@ -226,22 +212,22 @@ const styles = StyleSheet.create({
     optionItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 20,
     },
     radioButton: {
-        width: 20,
-        height: 20,
+        width: 15,
+        height: 15,
         borderRadius: 10,
-        borderWidth: 2,
-        borderColor: '#000',
+        borderWidth: 1,
+        borderColor: '#FF8200',
         marginRight: 10,
     },
     optionContainer: {
         flex: 1,
     },
     selectedRadioButton: {
-        backgroundColor: '#FF8200', // Color for selected option
-        borderColor: '#FF8200', // Border color for selected option
+        //backgroundColor: '#FF8200', // Color for selected option
+        //borderColor: '#FF8200', // Border color for selected option
     },
     optionText: {
         fontSize: 16,
@@ -250,7 +236,7 @@ const styles = StyleSheet.create({
         height: 6,
         backgroundColor: '#e0e0e0',
         borderRadius: 3,
-        marginTop: 5,
+        marginTop: 10,
     },
     progressBar: {
         height: '100%',
