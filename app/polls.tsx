@@ -38,6 +38,8 @@ const PollItem: React.FC<{ poll: any, options: any, vote: any }> = ({ poll, opti
     }
 
 
+
+
     const handleOptionSelect = async (pollId: string, optionId: string) => {
         console.log('Voting for option', optionId);
         if (hasUserVotted(poll._id)) {
