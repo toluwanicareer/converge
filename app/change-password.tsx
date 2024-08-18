@@ -136,9 +136,9 @@ export default function ChangePasswordScreen() {
     return (
         <ThemedView style={styles.container}>
             <View style={styles.imageContainer} >
-                <Image source={require('../assets/images/converge_logo.png')} style={styles.logoImage} />
+                <Image source={require('../assets/images/logo_converge.png')} style={styles.logoImage} />
             </View>
-            <ThemedText style={styles.title}>Converge</ThemedText>
+            {/* <ThemedText style={styles.title}>Converge</ThemedText> */}
             <ThemedText style={styles.subtitle}>Change your password</ThemedText>
 
             <View style={styles.inputContainer}>
@@ -293,7 +293,9 @@ const styles = StyleSheet.create({
     },
     logoImage: {
         justifyContent: 'center',
-        resizeMode: 'contain'
+        resizeMode: 'contain',
+        width: 300,
+        height: 45,
     },
     navigationText: {
         justifyContent: 'center',

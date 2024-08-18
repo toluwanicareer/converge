@@ -13,6 +13,7 @@ import { Href } from 'expo-router';
 import useSession from '@/hooks/useSession';
 import { NotificationContext } from '@/context/auth/app';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface NavCardProps {
     title: string;
@@ -40,6 +41,12 @@ export default function HomeScreen() {
     const [userData, setUserData] = useState<any>(null);
     const ctx = useContext(NotificationContext);
 
+    const logout = () => {
+        // AsyncStorage.setItem('session', '');
+        AsyncStorage.removeItem('session')
+        
+        router.push('/login')
+    }
 
     useEffect(() => {
 
@@ -64,6 +71,7 @@ export default function HomeScreen() {
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.topBar}>
                 <Image source={require('../assets/images/logo_converge.png')} style={styles.logoImage} />
+               
                 <TouchableOpacity onPress={() => router.push('/announcements')}>
                     <View style={styles.notificationIconContainer}>
                         <Ionicons name="notifications-outline" size={24} color="#000" />
@@ -73,8 +81,10 @@ export default function HomeScreen() {
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity>
-                    <SimpleLineIcons name="logout" size={24} color="black" />
+                <TouchableOpacity onPress={() => logout()}>
+                    <View style={styles.logoutBtnContainer}>
+                        <SimpleLineIcons name="logout" size={24} color="black" />
+                    </View>
                 </TouchableOpacity>
                 {/* <Ionicons name="person-circle-outline" size={24} color="#000" /> */}
             </View>
@@ -156,6 +166,10 @@ const styles = StyleSheet.create({
         fontSize: 21,
         fontWeight: 'bold',
         color: '#000',
+    },
+    logoutBtnContainer: {
+        marginRight: 100,
+        gap: 20
     },
     container: {
         flex: 1,
