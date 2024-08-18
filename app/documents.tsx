@@ -7,7 +7,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Document } from '@/services/api';
+import { Document, fetchData } from '@/services/api';
 
 
 
@@ -38,8 +38,8 @@ export default function DocumentsScreen() {
     useEffect(() => {
         const loadDocument = async () => {
             try {
-                // const result = await fetchData<Document[]>();
-                // setDocuments(result);
+                const result = await fetchData<Document[]>('http://192.168.1.129:3000/doc');
+                setDocuments(result);
             } catch (error: any) {
                 setError(error.message);
             }

@@ -126,7 +126,7 @@ export default function PollsScreen() {
     }, [])
 
     const getPoll = async() => {
-        const response = await fetch('https://192.168.1.129:3000/poll/with-options');
+        const response = await fetch('http://192.168.1.129:3000/poll/with-options');
         const data = await response.json();
         setPolls(data.polls);
         setOptions(data.options);
