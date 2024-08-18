@@ -178,7 +178,7 @@ export default function QuestionsScreen() {
       <FlatList
         data={sortedQuestions}
         renderItem={({ item }) => <QuestionItem likeQuestion={likeQuestion} question={item} likedQuestions={likedQuestions} />}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item._id}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
 

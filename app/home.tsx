@@ -12,6 +12,7 @@ import { Href } from 'expo-router';
 // import { useSession } from '@/context/auth/auth';
 import useSession from '@/hooks/useSession';
 import { NotificationContext } from '@/context/auth/app';
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 
 interface NavCardProps {
     title: string;
@@ -71,6 +72,10 @@ export default function HomeScreen() {
                         </View>
                     </View>
                 </TouchableOpacity>
+
+                <TouchableOpacity>
+                    <SimpleLineIcons name="logout" size={24} color="black" />
+                </TouchableOpacity>
                 {/* <Ionicons name="person-circle-outline" size={24} color="#000" /> */}
             </View>
             <ParallaxScrollView
@@ -114,6 +119,7 @@ const styles = StyleSheet.create({
         //gap: 10,
         alignItems: 'center',
         paddingHorizontal: 20,
+        marginRight: 40,
         paddingTop: 55, // Adjusted paddingTop to lower the top bar
     },
     notificationIconContainer: {
@@ -183,7 +189,7 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 16,
         fontWeight: '900',
-        fontFamily: "Inter_900Black",
+        // fontFamily: "Inter_900Black",
         color: 'white',
         marginBottom: 5,
 

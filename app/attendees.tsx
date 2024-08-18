@@ -54,7 +54,7 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
                 description: message,
                 location: ''
             }
-            console.log('Payload', payload)
+         
             const response = await axios.post(`${BaseUrl}/announcement/create`, {
                 ...payload
             });
@@ -97,10 +97,10 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
                 <ThemedText style={styles.attendeeEmail}>{attendee.user_id.email}</ThemedText>
                 <ThemedText style={styles.attendeePhone}>{attendee.user_id.phoneNum}</ThemedText>
                 <View style={styles.contactButtons}>
-                    <TouchableOpacity onPress={() => openUrl(
+                    {/* <TouchableOpacity onPress={() => openUrl(
                         Platform.OS === 'ios' ? `tel:${attendee.user_id.phoneNum}` : `telprompt:${attendee.user_id.phoneNum}`)}>
                         <Ionicons name="call-outline" size={20} color="#000" />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <TouchableOpacity onPress={() => setModalVisible(true)}>
                         <Ionicons name="mail-outline" size={20} color="#000" />
                     </TouchableOpacity>

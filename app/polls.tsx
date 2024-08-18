@@ -189,7 +189,11 @@ export default function PollsScreen() {
     const [options, setOptions] = useState<any>(null);
 
     useEffect(() => {
-        getPoll()
+        getPoll();
+        // Set up interval to refresh announcements every 10 seconds
+        const interval = setInterval(() => {
+            getPoll();
+        }, 3600000);
     }, [])
 
     const getPoll = async () => {
@@ -229,7 +233,7 @@ export default function PollsScreen() {
             <FlatList
                 data={polls}
                 renderItem={({ item }) => <PollItem vote={vote} poll={item} options={options?.filter((option: any) => option.pollId === item._id)} />}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item._id}
                 contentContainerStyle={styles.pollList}
             />
         </ThemedView>
@@ -305,7 +309,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#e0e0e0',
         borderRadius: 3,
         marginTop: 10,
-        width: '95%',
+        width: '90%',
     },
     progressBar: {
         height: '100%',

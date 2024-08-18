@@ -60,7 +60,8 @@ export default function RootLayout() {
             <Stack.Screen name="directors" options={{ headerShown: false }} />
             <Stack.Screen name="polls" options={{ headerShown: false }} />
             <Stack.Screen name="questions" options={{ headerShown: false }} />
-            <Stack.Screen name="agenda" options={{ headerShown: false }} />
+            <Stack.Screen name="agenda/index" options={{ headerShown: false }} />
+            {/* <Stack.Screen name="agenda/:eventId" options={{ headerShown: false }} /> */}
             <Stack.Screen name="announcements" options={{ headerShown: false }} />
             {/* <ProtectedRoutes> */}
             {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
