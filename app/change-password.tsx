@@ -12,7 +12,7 @@ import axios from 'axios';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Colors } from '@/constants/Colors';
+import { BaseUrl, Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -30,7 +30,7 @@ export default function ChangePasswordScreen() {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
     const navigation = useNavigation();
-    
+
     const togglePasswordVisibility = () => {
         setIsPasswordVisible(!isPasswordVisible);
     };
@@ -38,7 +38,7 @@ export default function ChangePasswordScreen() {
     const toggleConfirmPasswordVisibility = () => {
         setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
     }
-    
+
 
     const handleSendOTP = async () => {
         if (!email) {
@@ -94,25 +94,25 @@ export default function ChangePasswordScreen() {
     const changePassword = async () => {
         // router.push('/home')
         try {
-            
-            if (password === confirmPassword ) {
 
-                const data =  await AsyncStorage.getItem('session') ;
-                if ( data ) {
+            if (password === confirmPassword) {
+
+                const data = await AsyncStorage.getItem('session');
+                if (data) {
                     const { email } = JSON.parse(data);
                     console.log('Confirm Password', email);
-                    
-                    const response = await axios.post('http://192.168.43.152:3000/user/change-pass', {
-                        email, 
+
+                    const response = await axios.post(`${BaseUrl}/user/change-pass`, {
+                        email,
                         password
                     });
 
                     // const { data, status } = response;
                     console.log('Res', response.status);
-                    if ( response.status === 200 ) {
+                    if (response.status === 200) {
                         router.push('/home')
                     }
-                   
+
 
 
                 }
@@ -121,7 +121,7 @@ export default function ChangePasswordScreen() {
                 //     email, 
                 //     password
                 // });
-            } 
+            }
         } catch (error: any) {
             console.log('RERS', error)
             Alert.alert('Error', error.message);
@@ -141,14 +141,14 @@ export default function ChangePasswordScreen() {
             </View>
             <ThemedText style={styles.title}>Converge</ThemedText>
             <ThemedText style={styles.subtitle}>Change your password</ThemedText>
-     
+
             <View style={styles.inputContainer}>
                 <TouchableOpacity onPress={togglePasswordVisibility}>
-                    <AntDesign 
-                        name={isPasswordVisible ? "eye" : "eyeo"} 
-                        size={24} 
-                        color={Colors[colorScheme ?? 'light'].text} 
-                        style={styles.inputIcon} 
+                    <AntDesign
+                        name={isPasswordVisible ? "eye" : "eyeo"}
+                        size={24}
+                        color={Colors[colorScheme ?? 'light'].text}
+                        style={styles.inputIcon}
                     />
                 </TouchableOpacity>
                 {/* <AntDesign name="eyeo" size={24} color="black" style={styles.inputIcon} /> */}
@@ -174,14 +174,14 @@ export default function ChangePasswordScreen() {
             </View>
             {!passwordValid && <ThemedText style={styles.errorText}>Please enter a password</ThemedText>}
             <View style={styles.inputContainer}>
-            <TouchableOpacity onPress={toggleConfirmPasswordVisibility}>
-                <AntDesign 
-                    name={isConfirmPasswordVisible ? "eye" : "eyeo"} 
-                    size={24} 
-                    color={Colors[colorScheme ?? 'light'].text} 
-                    style={styles.inputIcon} 
-                />
-            </TouchableOpacity>
+                <TouchableOpacity onPress={toggleConfirmPasswordVisibility}>
+                    <AntDesign
+                        name={isConfirmPasswordVisible ? "eye" : "eyeo"}
+                        size={24}
+                        color={Colors[colorScheme ?? 'light'].text}
+                        style={styles.inputIcon}
+                    />
+                </TouchableOpacity>
                 {/* <AntDesign name="eyeo" size={24} color="black" style={styles.inputIcon} /> */}
                 <TextInput
                     style={[styles.input, !passwordValid && styles.inputError]}
@@ -190,12 +190,12 @@ export default function ChangePasswordScreen() {
                     value={confirmPassword}
                     onChangeText={(text) => {
                         setConfirmPassword(text);
-                        if ( text ) {
+                        if (text) {
                             setPasswordValid(true);
                             return
                         }
                         setPasswordValid(false);
-                    
+
                     }}
                     keyboardType="default"
                     autoCapitalize="none"
@@ -204,8 +204,8 @@ export default function ChangePasswordScreen() {
                 />
             </View>
             {!passwordValid && <ThemedText style={styles.errorText}>Please enter a password</ThemedText>}
-       
-       
+
+
             {/* {!passwordValid && <ThemedText style={styles.errorText}>Password incorrect</ThemedText>} */}
 
             <TouchableOpacity

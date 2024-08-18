@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, ImageBackground, SafeAreaView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ImageBackground, SafeAreaView, Image } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -36,12 +36,12 @@ export default function HomeScreen() {
     const userName = "Tolulope Esther"; // This should be fetched from user state or context
     const { session, loading: sessionIsFetching } = useSession();
     const [userData, setUserData] = useState<any>(null);
-    
+
     useEffect(() => {
 
-        if ( session && !sessionIsFetching ) {
+        if (session && !sessionIsFetching) {
             console.log('Session', session);
-            setUserData( session);
+            setUserData(session);
 
         }
 
@@ -59,22 +59,30 @@ export default function HomeScreen() {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.topBar}>
+                <Image source={require('../assets/images/logo_converge.png')} style={styles.logoImage} />
                 <TouchableOpacity onPress={() => router.push('/announcements')}>
                     <View style={styles.notificationIconContainer}>
                         <Ionicons name="notifications-outline" size={24} color="#000" />
-                        <View style={styles.notificationBadge}>
+                        {/* <View style={styles.notificationBadge}>
                             <ThemedText style={styles.notificationBadgeText}>2</ThemedText>
-                        </View>
+                        </View> */}
                     </View>
                 </TouchableOpacity>
-                <Ionicons name="person-circle-outline" size={24} color="#000" />
+                {/* <Ionicons name="person-circle-outline" size={24} color="#000" /> */}
             </View>
             <ParallaxScrollView
                 headerBackgroundColor={{ light: '#FFFFFF', dark: '#fff' }}
                 headerImage={
                     <View style={styles.header}>
-                        <ThemedText style={styles.welcomeText}>Welcome,</ThemedText>
-                        <ThemedText style={styles.nameText}>{userData?.name}</ThemedText>
+                        <View style={{ display: "flex", flexDirection: "row", alignItems: "flex-end", marginBottom: 20 }}>
+                            <ThemedText style={[styles.welcomeText, {
+                                fontSize: 18,
+                                color: "grey"
+                            }]}>Hello,</ThemedText>
+                            <ThemedText style={styles.welcomeText}>{userData?.name}</ThemedText>
+                        </View>
+
+                        <ThemedText style={styles.nameText}>Welcome to the 2024 Board Retreat</ThemedText>
                     </View>
                 }>
                 <ThemedView style={styles.container}>
@@ -99,8 +107,8 @@ const styles = StyleSheet.create({
     },
     topBar: {
         flexDirection: 'row',
-        justifyContent: 'flex-end',
-        gap: 10,
+        justifyContent: 'space-between',
+        //gap: 10,
         alignItems: 'center',
         paddingHorizontal: 20,
         paddingTop: 55, // Adjusted paddingTop to lower the top bar
@@ -136,9 +144,9 @@ const styles = StyleSheet.create({
         color: '#000',
     },
     nameText: {
-        fontSize: 25,
+        fontSize: 21,
         fontWeight: 'bold',
-        color: '#1E3A8A',
+        color: '#000',
     },
     container: {
         flex: 1,
@@ -180,5 +188,20 @@ const styles = StyleSheet.create({
     cardSubtitle: {
         fontSize: 12,
         color: 'white',
+    },
+    imageContainer: {
+        // flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+        // backgroundColor: '#f0f0f0'
+    },
+    logoImage: {
+        justifyContent: 'center',
+        resizeMode: 'contain',
+        width: 300,
+        height: 45,
+        right: 40
+        // backgroundColor: 'red'
     },
 });

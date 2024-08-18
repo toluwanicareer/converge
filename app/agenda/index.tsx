@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Dimensions, ScrollView, TouchableOpacity, Modal, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Carousel from 'react-native-reanimated-carousel';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Colors } from '@/constants/Colors';
+import { Colors, BaseUrl } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { router } from 'expo-router';
 
@@ -34,50 +34,28 @@ const AgendaScreen = () => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [selectedItem, setSelectedItem] = useState<AgendaItem | null>(null);
 
-    const agendaItems: AgendaItem[] = [
-        {
-            id: '1',
-            day: 'DAY 1',
-            title: 'Leadership & Management Conference',
-            date: '12/10/2024',
-            location: 'Access Towers',
-            time: '9:00AM',
-            additionalDetails: [
-                {
-                    id: '1',
-                    time: '09:00 - 09:05 AM',
-                    title: 'Opening Prayer',
-                    host: 'Lorato Morgano',
-                    position: 'Chairman, Access Bank Botswana',
-                },
-                // Add more additional details as needed
-            ],
-        },
-        {
-            id: '2',
-            day: 'DAY 2',
-            title: 'Innovation Summit',
-            date: '13/10/2024',
-            location: 'Tech Hub',
-            time: '10:00AM',
-            additionalDetails: [
-                {
-                    id: '2',
-                    time: '10:00 - 10:05 AM',
-                    title: 'Welcome Remarks',
-                    host: 'John Doe',
-                    position: 'CEO, Tech Innovators',
-                },
-                // Add more additional details as needed
-            ],
-        },
-        // Add more agenda items as needed
-    ];
+    const [events, setEvents] = useState<any[]>([]);
 
-    const handleShowDetails = (item: AgendaItem) => {
+    const handleShowDetails = (item: any) => {
         setSelectedItem(item);
-        router.push(`/agenda/${item.id}`);
+        router.push(`/agenda/${item._id}`);
     };
+
+    const fetchEvents = async () => {
+        try {
+            const response = await fetch(`${BaseUrl}/agenda/all`);
+            const data = await response.json();
+            setEvents(data.data);
+        } catch (error) {
+            console.error('Error loading events:', error);
+        }
+    }
+
+    useEffect(() => {
+
+        fetchEvents();
+    }, []);
+
 
     return (
         <ThemedView style={styles.container}>
@@ -87,56 +65,58 @@ const AgendaScreen = () => {
                 </TouchableOpacity>
                 <ThemedText style={styles.headerTitle}>Agenda</ThemedText>
             </View>
+            {events && events.length > 0 && (
+                <Carousel
+                    loop={false}
+                    width={screenWidth}
+                    height={ITEM_HEIGHT}
+                    style={styles.carousel}
+                    defaultIndex={0}
+                    data={events}
+                    scrollAnimationDuration={1000}
+                    renderItem={({ item, index }) => (
+                        <View style={styles.card}>
+                            <ScrollView style={styles.cardContent}>
+                                <ThemedText style={styles.dayText}>Day {index + 1}</ThemedText>
+                                <ThemedText style={styles.titleText}>{item.title}</ThemedText>
+                                <View style={styles.detailsContainer}>
+                                    <View style={styles.detailItem}>
+                                        <Ionicons name="calendar-outline" size={20} color="rgba(255, 130, 0, 1)" />
+                                        <View>
+                                            <ThemedText style={styles.detailText}>{new Date(item.date).toLocaleDateString()}</ThemedText>
+                                            <ThemedText style={styles.detailLabel}>Date</ThemedText>
+                                        </View>
+                                    </View>
+                                    <View style={styles.detailItem}>
+                                        <Ionicons name="location-outline" size={20} color="rgba(255, 130, 0, 1)" />
+                                        <View>
+                                            <ThemedText style={styles.detailText}>{item.location}</ThemedText>
+                                            <ThemedText style={styles.detailLabel}>Location</ThemedText>
+                                        </View>
+                                    </View>
+                                    <View style={styles.detailItem}>
+                                        <Ionicons name="time-outline" size={20} color="rgba(255, 130, 0, 1)" />
+                                        <View>
+                                            <ThemedText style={styles.detailText}>{item.time}</ThemedText>
+                                            <ThemedText style={styles.detailLabel}>Time</ThemedText>
+                                        </View>
+                                    </View>
+                                </View>
 
-            <Carousel
-                loop={false}
-                width={screenWidth}
-                height={ITEM_HEIGHT}
-                style={styles.carousel}
-                defaultIndex={0}
-                data={agendaItems}
-                scrollAnimationDuration={1000}
-                renderItem={({ item }) => (
-                    <View style={styles.card}>
-                        <ScrollView style={styles.cardContent}>
-                            <ThemedText style={styles.dayText}>{item.day}</ThemedText>
-                            <ThemedText style={styles.titleText}>{item.title}</ThemedText>
-                            <View style={styles.detailsContainer}>
-                                <View style={styles.detailItem}>
-                                    <Ionicons name="calendar-outline" size={20} color="rgba(255, 130, 0, 1)" />
-                                    <View>
-                                        <ThemedText style={styles.detailText}>{item.date}</ThemedText>
-                                        <ThemedText style={styles.detailLabel}>Date</ThemedText>
-                                    </View>
-                                </View>
-                                <View style={styles.detailItem}>
-                                    <Ionicons name="location-outline" size={20} color="rgba(255, 130, 0, 1)" />
-                                    <View>
-                                        <ThemedText style={styles.detailText}>{item.location}</ThemedText>
-                                        <ThemedText style={styles.detailLabel}>Location</ThemedText>
-                                    </View>
-                                </View>
-                                <View style={styles.detailItem}>
-                                    <Ionicons name="time-outline" size={20} color="rgba(255, 130, 0, 1)" />
-                                    <View>
-                                        <ThemedText style={styles.detailText}>{item.time}</ThemedText>
-                                        <ThemedText style={styles.detailLabel}>Time</ThemedText>
-                                    </View>
-                                </View>
-                            </View>
+                                <TouchableOpacity
+                                    style={styles.readMoreButton}
+                                    onPress={() => handleShowDetails(item)}
+                                >
+                                    <ThemedText style={styles.readMoreText}>Read More Details</ThemedText>
+                                </TouchableOpacity>
+                            </ScrollView>
+                        </View>
+                    )}
+                    mode="parallax"
+                    customConfig={() => ({ type: 'positive', viewCount: 2 })}
+                />
+            )}
 
-                            <TouchableOpacity
-                                style={styles.readMoreButton}
-                                onPress={() => handleShowDetails(item)}
-                            >
-                                <ThemedText style={styles.readMoreText}>Read More Details</ThemedText>
-                            </TouchableOpacity>
-                        </ScrollView>
-                    </View>
-                )}
-                mode="parallax"
-                customConfig={() => ({ type: 'positive', viewCount: 2 })}
-            />
 
             {/* Modal for additional details */}
             <Modal
@@ -214,6 +194,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 20,
         marginBottom: 0,
+        marginTop: 20,
     },
     headerTitle: {
         fontSize: 20,

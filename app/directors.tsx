@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
-import { Colors } from '@/constants/Colors';
+import { Colors, BaseUrl } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 const DirectorsScreen = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const colorScheme = useColorScheme();
     const [activeTab, setActiveTab] = useState('All Directors');
-    const [selectedDirector, setSelectedDirector] = useState<Director | null>(null);
+    const [selectedDirector, setSelectedDirector] = useState<any>(null);
+    const [directors, setDirectors] = useState<any[]>([]);
 
     interface Director {
         id: string;
@@ -23,34 +24,24 @@ const DirectorsScreen = () => {
         pix: string;
     };
 
-    const directors: Director[] = [
-        {
-            id: '1',
-            name: 'Toluwani Akano',
-            team: 'CEO, Access Holdings',
-            company: 'Access Holdings',
-            email: 'toluwani@example.com',
-            whatsapp: '+1234567890',
-            summary: 'Toluwani is an experienced director with a background in finance and management.',
-            pix: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwme89cM8YZvHcybGrZl_Obd9U9p5QabozJQ&s',
-        },
-        {
-            id: '2',
-            name: 'Bolaji Agbede',
-            team: 'Director',
-            company: 'Access Insurance',
-            email: 'emailaddress@accessbankplc.com',
-            whatsapp: '+1234567890',
-            summary: 'Lorem ipsum dolor sit amet consectetur. Maecenas diam fermentum cursus pharetra amet placerat. Euismod et enim morbi rhoncus id feugiat arcu eu. Viverra justo arcu enim dictum volutpat vitae nascetur urna vitae. Blandit mauris mattis vulputate nec amet tellus vel cursus ut. Malesuada sit lectus morbi quam in amet faucibus justo. Lectus orci pellentesque in neque quam pellentesque porttitor egestas. Bibendum nunc orci phasellus at aenean gravida enim lorem elementum. Elementum sagittis facilisis ut diam posuere arcu eu sit sed. Eu gravida amet risus interdum nec turpis.',
-            pix: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwme89cM8YZvHcybGrZl_Obd9U9p5QabozJQ&s',
-        },
-        // Add more directors with different companies here...
-    ];
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`${BaseUrl}/exec/directors`);
+            const data = await response.json();
+            setDirectors(data.data.filter((director: any) => director.user_id !== null));
+        } catch (error) {
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
 
     const filterDirectors = (company: string) => {
-        return directors.filter(director => 
-            (company === 'All Directors' || director.company === company) &&
-            director.name.toLowerCase().includes(searchQuery.toLowerCase())
+        return directors.filter(director =>
+            (company === 'All Directors' || director.company?.toLowerCase() === company.toLowerCase()) &&
+            director.user_id.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
     };
 
@@ -74,15 +65,15 @@ const DirectorsScreen = () => {
 
             {selectedDirector ? (
                 <View style={styles.detailsContainer}>
-                    <Image source={{ uri: selectedDirector.pix }} style={styles.detailsImage} />
-                    <Text style={styles.detailsName}>{selectedDirector.name}</Text>
-                    <Text style={styles.detailsTeam}>{selectedDirector.team}</Text>
-                    <Text style={styles.detailsTeam}>{selectedDirector.email}</Text>
+                    <Image source={{ uri: selectedDirector.user_id.pix }} style={styles.detailsImage} />
+                    <Text style={styles.detailsName}>{selectedDirector.user_id.name}</Text>
+                    <Text style={styles.detailsTeam}>{selectedDirector.position}</Text>
+                    <Text style={styles.detailsTeam}>{selectedDirector.user_id.email}</Text>
                     <View style={styles.contactInfo}>
                         <Ionicons name="mail-open-outline" size={20} color="#000" />
                         <Ionicons name="logo-whatsapp" size={20} color="#000" />
                     </View>
-                    <Text style={styles.detailsSummary}>{selectedDirector.summary}</Text>
+                    <Text style={styles.detailsSummary}>{selectedDirector.bio}</Text>
                 </View>
             ) : (
                 <>
@@ -119,11 +110,11 @@ const DirectorsScreen = () => {
                             <View style={styles.directorInfo}>
                                 <Image
                                     style={styles.directorImage}
-                                    source={{ uri: director.pix }}
+                                    source={{ uri: director.user_id.pix }}
                                 />
                                 <View style={styles.directorTextContainer}>
-                                    <Text style={styles.directorName}>{director.name}</Text>
-                                    <Text style={styles.directorRole}>{director.team}</Text>
+                                    <Text style={styles.directorName}>{director.user_id.name}</Text>
+                                    <Text style={styles.directorRole}>{director.position}</Text>
                                 </View>
                             </View>
                             <TouchableOpacity style={styles.readBioButton} onPress={() => handleDirectorSelect(director)}>
@@ -155,7 +146,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
-        marginTop: 30,
+        marginTop: 50,
     },
     tabsContainer: {
         flexDirection: 'row',

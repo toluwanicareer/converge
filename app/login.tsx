@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Colors } from '@/constants/Colors';
+import { Colors, BaseUrl } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useSession } from '@/context/auth/auth';
 
@@ -25,19 +25,19 @@ export default function LoginScreen() {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const colorScheme = useColorScheme();
     const navigation = useNavigation();
-    
+
     const togglePasswordVisibility = () => {
         setIsPasswordVisible(!isPasswordVisible);
     };
-    
+
     const handleSendOTP = async () => {
         if (!email) {
             setEmailValid(false);
             return;
         }
-        
+
         setIsLoading(true);
-        
+
         try {
             // Check if user exists
             // const { data: { user }, error: userError } = await supabase.auth.getUser(email);
@@ -79,19 +79,19 @@ export default function LoginScreen() {
 
     const handleLogin = async () => {
         if (emailValid && passwordValid) {
-            
+
             try {
                 setIsLoading(true);
                 // Replace with your server's login endpoint
-                const response = await axios.post('http://192.168.43.152:3000/user/login', {
-                    email, 
+                const response = await axios.post(`${BaseUrl}/user/login`, {
+                    email,
                     password
                 });
 
-                const {data, status} = response;
+                const { data, status } = response;
                 console.log(data)
-                AsyncStorage.setItem('session',JSON.stringify(data.data))
-                if( !data.data.passwordChanged) {
+                AsyncStorage.setItem('session', JSON.stringify(data.data))
+                if (!data.data.passwordChanged) {
                     router.push('/change-password');
                     return
                 }
@@ -110,7 +110,7 @@ export default function LoginScreen() {
     return (
         <ThemedView style={styles.container}>
             <View style={styles.imageContainer} >
-                <Image source={require('../assets/images/logo_converge.png')} style={styles.logoImage}/>
+                <Image source={require('../assets/images/logo_converge.png')} style={styles.logoImage} />
             </View>
             <ThemedText style={styles.title}>Welcome to Access Converge-X</ThemedText>
             <ThemedText style={styles.subtitle}>Please enter email and password to login</ThemedText>
@@ -124,7 +124,7 @@ export default function LoginScreen() {
                     value={email}
                     onChangeText={(text) => {
                         setEmail(text);
-                        if(validateEmail(text)) {
+                        if (validateEmail(text)) {
                             setEmailValid(true);
                             return
                         }
@@ -137,14 +137,14 @@ export default function LoginScreen() {
             </View>
             {!emailValid && <ThemedText style={styles.errorText}>Please enter a valid email</ThemedText>}
             <View style={styles.inputContainer}>
-            <TouchableOpacity onPress={togglePasswordVisibility}>
-                    <AntDesign 
-                        name={isPasswordVisible ? "eye" : "eyeo"} 
-                        size={24} 
-                        color={Colors[colorScheme ?? 'light'].text} 
-                        style={styles.inputIcon} 
+                <TouchableOpacity onPress={togglePasswordVisibility}>
+                    <AntDesign
+                        name={isPasswordVisible ? "eye" : "eyeo"}
+                        size={24}
+                        color={Colors[colorScheme ?? 'light'].text}
+                        style={styles.inputIcon}
                     />
-            </TouchableOpacity>
+                </TouchableOpacity>
                 {/* <AntDesign name={isPasswordVisible ? "eye" : "eyeo"}  size={24} color="black" style={styles.inputIcon} /> */}
                 <TextInput
                     style={[styles.input, !passwordValid && styles.inputError]}
@@ -153,12 +153,12 @@ export default function LoginScreen() {
                     value={password}
                     onChangeText={(text) => {
                         setPassword(text);
-                        if ( text ) {
+                        if (text) {
                             setPasswordValid(true);
                             return
                         }
                         setPasswordValid(false);
-                    
+
                     }}
                     keyboardType="default"
                     autoCapitalize="none"

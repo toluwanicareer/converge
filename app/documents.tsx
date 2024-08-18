@@ -1,36 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, FlatList, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, FlatList, TextInput, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Colors } from '@/constants/Colors';
+import { Colors, BaseUrl } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Document, fetchData } from '@/services/api';
 
 
 
-const DocumentItem: React.FC<{ document: Document }> = ({ document }) => (
+const DocumentItem: React.FC<{ document: any }> = ({ document }) => (
     <View style={styles.documentItem}>
         <View style={styles.documentInfo}>
             <View style={styles.iconContainer}>
                 <Ionicons name="document-text-outline" size={24} color="red" />
-                <ThemedText style={styles.pdfText}>PDF</ThemedText>
+                <ThemedText style={styles.pdfText}>{document.fileType ? document.fileType : 'PDF'}</ThemedText>
             </View>
             <View>
-                <ThemedText style={styles.documentTitle}>{document.title}</ThemedText>
-                <ThemedText style={styles.documentCreator}>Created by {document.creator}</ThemedText>
+                <ThemedText style={styles.documentTitle}>{document.name}</ThemedText>
+                <ThemedText style={styles.documentCreator}>Created by {document.createdBy}</ThemedText>
             </View>
         </View>
-        <TouchableOpacity style={styles.downloadButton} onPress={() => console.log(`Downloading ${document.title}`)}>
+        <TouchableOpacity style={styles.downloadButton} onPress={() => Linking.openURL(document.url)}>
             <ThemedText style={styles.downloadButtonText}>Download Document</ThemedText>
         </TouchableOpacity>
     </View>
 );
 
 export default function DocumentsScreen() {
-    const [documents, setDocuments] = useState<Document[]>([]);
+    const [documents, setDocuments] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const colorScheme = useColorScheme();
@@ -38,8 +38,9 @@ export default function DocumentsScreen() {
     useEffect(() => {
         const loadDocument = async () => {
             try {
-                const result = await fetchData<Document[]>('http://192.168.1.129:3000/doc');
-                setDocuments(result);
+                const result = await fetchData<any>(`${BaseUrl}/doc`);
+                console.log(result);
+                setDocuments(result.data);
             } catch (error: any) {
                 setError(error.message);
             }
@@ -48,12 +49,7 @@ export default function DocumentsScreen() {
         loadDocument();
     }, []);
 
-    // const documents: Document[] = [
-    //     { id: '1', title: 'Leadership and Management', creator: 'Toluwani Akano' },
-    //     { id: '2', title: 'Leadership and Management', creator: 'Toluwani Akano' },
-    //     { id: '3', title: 'Leadership and Management', creator: 'Toluwani Akano' },
-    //     { id: '4', title: 'Leadership and Management', creator: 'Toluwani Akano' },
-    // ];
+
 
     return (
         <ThemedView style={styles.container}>
@@ -76,7 +72,7 @@ export default function DocumentsScreen() {
             </View>
 
             <FlatList
-                data={documents}
+                data={documents.filter(document => document.name.toLowerCase().includes(searchQuery.toLowerCase()))}
                 renderItem={({ item }) => <DocumentItem document={item} />}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.documentList}
@@ -95,6 +91,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 20,
         marginBottom: 20,
+        marginTop: 40,
     },
     headerTitle: {
         fontSize: 20,
@@ -125,7 +122,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 10,
         padding: 15,
-        marginBottom: 15,
+        marginBottom: 20,
         elevation: 2,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },

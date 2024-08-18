@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, FlatList, TextInput, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, FlatList, TextInput, TouchableOpacity, Image, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Colors } from '@/constants/Colors';
+import { Colors, BaseUrl } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 interface Attendee {
@@ -18,45 +18,56 @@ interface Attendee {
     image: string;
 }
 
-const AttendeeItem: React.FC<{ attendee: Attendee }> = ({ attendee }) => (
-    <View style={styles.attendeeItem}>
-        <Image source={{ uri: attendee.image }} style={styles.attendeeImage} />
-        <View style={styles.attendeeInfo}>
-            <ThemedText style={styles.attendeeName}>{attendee.name}</ThemedText>
-            <ThemedText style={styles.attendeeCompany}>{attendee.company}, {attendee.position}</ThemedText>
-            <ThemedText style={styles.attendeeEmail}>{attendee.email}</ThemedText>
-            <ThemedText style={styles.attendeePhone}>{attendee.phone}</ThemedText>
-            <View style={styles.contactButtons}>
-                <TouchableOpacity onPress={() => console.log('Email pressed')}>
-                    <Ionicons name="mail-outline" size={20} color="#000" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => console.log('Phone pressed')}>
-                    <Ionicons name="call-outline" size={20} color="#000" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => console.log('WhatsApp pressed')}>
-                    <Ionicons name="logo-whatsapp" size={20} color="#000" />
-                </TouchableOpacity>
+const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
+
+    const openUrl = (url) => {
+        Linking.openURL(url);
+    }
+    return (
+        <View style={styles.attendeeItem}>
+            <Image source={{ uri: attendee.user_id.pix }} style={styles.attendeeImage} />
+            <View style={styles.attendeeInfo}>
+                <ThemedText style={styles.attendeeName}>{attendee.user_id.name}</ThemedText>
+                <ThemedText style={styles.attendeeCompany}>{attendee.company}, {attendee.position}</ThemedText>
+                <ThemedText style={styles.attendeeEmail}>{attendee.user_id.email}</ThemedText>
+                <ThemedText style={styles.attendeePhone}>{attendee.user_id.phoneNum}</ThemedText>
+                <View style={styles.contactButtons}>
+                    <TouchableOpacity onPress={() => console.log('Email pressed')}>
+                        <Ionicons name="mail-outline" size={20} color="#000" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => console.log('Phone pressed')}>
+                        <Ionicons name="call-outline" size={20} color="#000" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => console.log('WhatsApp pressed')}>
+                        <Ionicons name="logo-whatsapp" size={20} color="#000" />
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
-    </View>
-);
+    )
+};
 
 export default function AttendeesScreen() {
     const [searchQuery, setSearchQuery] = useState('');
     const colorScheme = useColorScheme();
 
-    const attendees: Attendee[] = [
-        {
-            id: '1',
-            name: 'Name of Attendee',
-            company: 'Access Bank Nigeria',
-            position: 'Retail Ops',
-            email: 'emailaddress@accessbankplc.com',
-            phone: '+234 8130664566',
-            image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwme89cM8YZvHcybGrZl_Obd9U9p5QabozJQ&s'
-        },
-        // Add more attendees here...
-    ];
+    const [attendees, setAttendees] = useState<any[]>([]);
+
+    useEffect(() => {
+        const loadAttendees = async () => {
+            try {
+                const response = await fetch(`${BaseUrl}/attendee`);
+                const data = await response.json();
+                setAttendees(data.data);
+
+            } catch (error) {
+                console.error('Error loading attendees:', error);
+            }
+        }
+        loadAttendees();
+    }, []);
+
+
 
     return (
         <ThemedView style={styles.container}>
@@ -80,7 +91,7 @@ export default function AttendeesScreen() {
             </View>
 
             <FlatList
-                data={attendees}
+                data={searchQuery ? attendees.filter(attendee => attendee.user_id.name.toLowerCase().includes(searchQuery.toLowerCase())) : attendees}
                 renderItem={({ item }) => <AttendeeItem attendee={item} />}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.attendeeList}
@@ -109,6 +120,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 20,
         marginBottom: 20,
+        marginTop: 40,
     },
     searchContainer: {
         flexDirection: 'row',

@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Colors } from '@/constants/Colors';
+import { Colors, BaseUrl } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 type Announcement = {
@@ -16,7 +16,7 @@ type Announcement = {
 };
 
 type AnnouncementItemProps = {
-    announcement: Announcement;
+    announcement: any;
     onPress: () => void;
 };
 
@@ -27,14 +27,14 @@ const AnnouncementItem: React.FC<AnnouncementItemProps> = ({ announcement, onPre
         </View>
         <View style={styles.announcementContent}>
             <ThemedText style={styles.announcementTitle}>{announcement.title}</ThemedText>
-            <ThemedText style={styles.announcementDate}>{announcement.date}</ThemedText>
+            <ThemedText style={styles.announcementDate}>{new Date(announcement.createdAt).toLocaleDateString()} {new Date(announcement.createdAt).toLocaleTimeString()}</ThemedText>
         </View>
         <Ionicons name="chevron-forward" size={24} color="#C7C7CC" />
     </TouchableOpacity>
 );
 
 type AnnouncementDetailProps = {
-    announcement: Announcement;
+    announcement: any;
 };
 
 const AnnouncementDetail: React.FC<AnnouncementDetailProps> = ({ announcement }) => (
@@ -42,9 +42,9 @@ const AnnouncementDetail: React.FC<AnnouncementDetailProps> = ({ announcement })
         <ThemedText style={styles.detailTitle}>{announcement.title}</ThemedText>
         <View style={styles.detailDateContainer}>
             <Ionicons name="calendar-outline" size={16} color="#FF9500" />
-            <ThemedText style={styles.detailDate}>{announcement.date}</ThemedText>
+            <ThemedText style={styles.detailDate}>{new Date(announcement.createdAt).toLocaleDateString()} {new Date(announcement.createdAt).toLocaleTimeString()}</ThemedText>
         </View>
-        <ThemedText style={styles.detailContent}>{announcement.content}</ThemedText>
+        <ThemedText style={styles.detailContent}>{announcement.description}</ThemedText>
     </ScrollView>
 );
 
@@ -54,31 +54,24 @@ export default function AnnouncementsScreen() {
     const colorScheme = useColorScheme() ?? 'light'; // Default to 'light' if colorScheme is null
 
     useEffect(() => {
-      // Initial fetch
-      fetchAnnouncements();
+        // Initial fetch
+        fetchAnnouncements();
 
-      // Set up interval to refresh announcements every 10 seconds
-      const interval = setInterval(() => {
-          fetchAnnouncements();
-      }, 10000);
+        // Set up interval to refresh announcements every 10 seconds
+        const interval = setInterval(() => {
+            fetchAnnouncements();
+        }, 10000);
 
-      // Clean up the interval on component unmount
-      return () => clearInterval(interval);
-  }, []);
+        // Clean up the interval on component unmount
+        return () => clearInterval(interval);
+    }, []);
 
-  const fetchAnnouncements = () => {
-      // Here you would typically make an API call to fetch the latest announcements
-      const fetchedAnnouncements: Announcement[] = [
-          {
-              id: '1',
-              title: 'AGM meeting agenda available',
-              date: '7 August 2024',
-              content: 'Lorem ipsum dolor sit amet consectetur. Maecenas diam fermentum cursus pharetra amet placerat. Euismod et enim morbi rhoncus id feugiat arcu eu. Viverra justo arcu enim dictum volutpat vitae nascetur urna vitae. Blandit mauris mattis vulputate nec amet tellus vel cursus ut. Malesuada sit lectus morbi quam in amet faucibus justo. Lectus orci pellentesque in neque quam pellentesque porttitor egestas. Bibendum nunc orci phasellus at aenean gravida enim lorem elementum. Elementum sagittis facilisis ut diam posuere arcu eu sit sed. Eu gravida amet risus interdum nec turpis.\n\nDignissim tortor leo gravida turpis etiam volutpat sed quis. Hendrerit bibendum lectus id rhoncus odio. Ut viverra a pellentesque tempus et ullamcorper tristique massa.'
-          },
-          // Add more announcements here...
-      ];
-      setAnnouncements(fetchedAnnouncements);
-  };
+    const fetchAnnouncements = async () => {
+        // Here you would typically make an API call to fetch the latest announcements
+        const response = await fetch(`${BaseUrl}/announcement`);
+        const data = await response.json();
+        setAnnouncements(data.data);
+    };
 
     const renderHeader = () => (
         <View style={styles.header}>
@@ -120,7 +113,7 @@ export default function AnnouncementsScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F2F2F7',
+        backgroundColor: 'white',
     },
     header: {
         flexDirection: 'row',
@@ -129,6 +122,7 @@ const styles = StyleSheet.create({
         paddingTop: 60,
         paddingBottom: 20,
         backgroundColor: '#FFF',
+        marginTop: 40,
     },
     backButton: {
         flexDirection: 'row',
@@ -147,20 +141,21 @@ const styles = StyleSheet.create({
         color: Colors.light.text, // Adjust color based on theme
     },
     announcementsList: {
-        paddingHorizontal: 16,
+        //paddingHorizontal: 16,
     },
     announcementItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFF',
-        borderRadius: 8,
+        backgroundColor: '#fff',
+        //borderRadius: 8,
         padding: 16,
         marginTop: 16,
-        shadowColor: '#000', // Add shadow to the card
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        width: '100%',
+        borderBottomWidth: 1,
+        borderBottomColor: '#EFEFF4',
+        borderLeftWidth: 3,
+        borderLeftColor: '#FF9500',
+        paddingVertical: 16,
     },
     announcementIcon: {
         width: 40,

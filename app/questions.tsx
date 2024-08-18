@@ -1,55 +1,131 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, FlatList, TextInput, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { StyleSheet, View, FlatList, TextInput, TouchableOpacity, Image, ActivityIndicator, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-
+import { Picker } from '@react-native-picker/picker';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Colors } from '@/constants/Colors';
+import { Colors, BaseUrl } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Questions } from '@/services/api';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import useSession from '@/hooks/useSession';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const QuestionItem: React.FC<{ question: Questions }> = ({ question }) => (
-  <View style={styles.questionItem}>
-    <AntDesign name="user" size={24} color="#ffa200" />
-    <View style={styles.questionContent}>
-      <View style={styles.questionHeader}>
-        <ThemedText style={styles.userName}>{question.name}</ThemedText>
-        <View style={styles.likeContainer}>
-          <ThemedText style={styles.likeCount}>{question.likes}</ThemedText>
-          <Ionicons name="thumbs-up" size={16} color="#FF9500" />
+
+const QuestionItem: React.FC<{ question: any, likeQuestion: any, likedQuestions: any }> = ({ question, likeQuestion, likedQuestions }) => {
+  const isLiked = likedQuestions.includes(question._id);
+  return (
+    <View style={styles.questionItem}>
+      <AntDesign name="user" size={24} color="#ffa200" />
+      <View style={styles.questionContent}>
+        <View style={styles.questionHeader}>
+          <ThemedText style={styles.userName}>{question.createdBy}</ThemedText>
+          <TouchableOpacity onPress={() => {
+            !isLiked ? likeQuestion(question._id) : null
+          }}>
+            <View style={styles.likeContainer}>
+              <ThemedText style={styles.likeCount}>{question.likeCount}</ThemedText>
+              <Ionicons name="thumbs-up" size={16} color={isLiked ? "#FF9500" : "#000"} />
+            </View>
+          </TouchableOpacity>
         </View>
+        <ThemedText style={styles.questionTime}>{new Date(question.createdAt).toLocaleDateString()}- {new Date(question.createdAt).toLocaleTimeString()}</ThemedText>
+        <ThemedText style={styles.questionText}>{question.question}</ThemedText>
       </View>
-      <ThemedText style={styles.questionTime}>{question.time}</ThemedText>
-      <ThemedText style={styles.questionText}>{question.text}</ThemedText>
     </View>
-  </View>
-);
+  )
+};
 
 export default function QuestionsScreen() {
   const [newQuestion, setNewQuestion] = useState('');
   const colorScheme = useColorScheme();
 
-  const questions = [
-    {
-      id: '1',
-      name: 'John Abraham',
-      time: '20 mins ago',
-      text: 'Does the company support and cover costs of external courses?',
-      likes: 12,
-      image: ''
-    },
-    {
-      id: '2',
-      name: 'Jerry Abraham',
-      time: '20 mins ago',
-      text: 'Does the company support and cover costs of external courses?',
-      likes: 12,
-      image: ''
-    },
-    // Add more questions here...
-  ];
+  const [questions, setQuestion] = useState<any[]>([]);
+  const { session, loading: sessionIsFetching } = useSession();
+  const [userData, setUserData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [likedQuestions, setLikedQuestions] = useState<string[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [sortBy, setSortBy] = useState('time');
+
+
+  const sortedQuestions = useMemo(() => {
+    if (sortBy === 'likes') {
+      return [...questions].sort((a, b) => b.likeCount - a.likeCount);
+    } else {
+      return [...questions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+  }, [questions, sortBy]);
+
+  useEffect(() => {
+
+    if (session && !sessionIsFetching) {
+      console.log('Session', session);
+      setUserData(session);
+    }
+  }, [session]);
+
+  const addQuestion = async () => {
+    if (!newQuestion || loading) {
+      return;
+    }
+    if (newQuestion.length > 200) {
+      alert('Question cannot be more than 200 characters');
+      return;
+    }
+    setLoading(true);
+    await submitQuestion(newQuestion, userData.name);
+    setNewQuestion('');
+    await getQuestions();
+    setLoading(false);
+  };
+
+  const likeQuestion = async (questionId: string) => {
+    setLikedQuestions([...likedQuestions, questionId]);
+    AsyncStorage.setItem('likedQuestions', JSON.stringify([...likedQuestions, questionId]));
+    await fetch(`${BaseUrl}/questions/like`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ questionId }),
+    });
+    await getQuestions();
+  }
+
+  const submitQuestion = async (question: string, createdBy: string) => {
+    await fetch(`${BaseUrl}/questions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ question, createdBy }),
+    });
+
+  };
+
+  const getQuestions = async () => {
+    const response = await fetch(`${BaseUrl}/questions`);
+    const data = await response.json();
+    setQuestion(data.data);
+  };
+
+  useEffect(() => {
+
+    getQuestions();
+    AsyncStorage.getItem('likedQuestions').then((data) => {
+      if (data) {
+        setLikedQuestions(JSON.parse(data));
+      }
+    });
+  }, []);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await getQuestions();
+    setRefreshing(false);
+  }, []);
 
   return (
     <ThemedView style={styles.container}>
@@ -75,17 +151,37 @@ export default function QuestionsScreen() {
             placeholderTextColor="#999"
           />
         </View>
-        <TouchableOpacity style={styles.sendButton}>
-          <ThemedText style={styles.sendButtonText}>Send</ThemedText>
+        <TouchableOpacity onPress={addQuestion} style={styles.sendButton}>
+          <ThemedText style={styles.sendButtonText}>Send {loading ? <ActivityIndicator></ActivityIndicator> : null}</ThemedText>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.sortContainer}>
+        <ThemedText style={styles.sortLabel}>Sort by:</ThemedText>
+        <TouchableOpacity style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+          marginVertical: 10
+        }}>
+          <ThemedText onPress={() => setSortBy('time')} style={{
+            color: sortBy === 'time' ? '#FF9500' : '#000',
+          }}>Time</ThemedText>
+          <ThemedText style={{
+            color: sortBy === 'likes' ? '#FF9500' : '#000',
+          }} onPress={() => setSortBy('likes')} >Likes</ThemedText>
         </TouchableOpacity>
       </View>
 
-      <ThemedText style={styles.questionsCount}>10 Questions</ThemedText>
+
+      <ThemedText style={styles.questionsCount}>{questions?.length || 0} Questions</ThemedText>
 
       <FlatList
-        data={questions}
-        renderItem={({ item }) => <QuestionItem question={item} />}
+        data={sortedQuestions}
+        renderItem={({ item }) => <QuestionItem likeQuestion={likeQuestion} question={item} likedQuestions={likedQuestions} />}
         keyExtractor={item => item.id}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+
         contentContainerStyle={styles.questionsList}
       />
     </ThemedView>
@@ -104,6 +200,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 20,
     backgroundColor: '#FFF',
+    marginTop: 20,
   },
   backButton: {
     flexDirection: 'row',
@@ -172,7 +269,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     borderRadius: 8,
     paddingVertical: 16,
-    paddingHorizontal: 16
+    paddingHorizontal: 16,
+    gap: 16,
   },
   userImage: {
     width: 40,
@@ -208,5 +306,19 @@ const styles = StyleSheet.create({
   likeCount: {
     fontSize: 13,
     marginRight: 4,
+  },
+  sortContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 12,
+  },
+  sortLabel: {
+    fontSize: 17,
+    marginRight: 8,
+  },
+  sortPicker: {
+    flex: 1,
+    height: 50,
   },
 });

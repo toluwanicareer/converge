@@ -25,11 +25,9 @@ export interface Questions {
 
 export const fetchData = async <T>(url: string): Promise<T> => {
   const response = await fetch(url);
-
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
-
   const jsonData: T = await response.json();
   return jsonData;
 };
