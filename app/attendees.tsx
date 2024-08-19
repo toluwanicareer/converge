@@ -54,7 +54,7 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
                 description: message,
                 location: ''
             }
-         
+
             const response = await axios.post(`${BaseUrl}/announcement/create`, {
                 ...payload
             });
@@ -137,7 +137,6 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
         </View>
     );
 };
-
 
 export default function AttendeesScreen() {
     const [searchQuery, setSearchQuery] = useState('');
