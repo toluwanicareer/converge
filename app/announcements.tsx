@@ -56,42 +56,11 @@ export default function AnnouncementsScreen() {
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const colorScheme = useColorScheme() ?? 'light'; // Default to 'light' if colorScheme is null
     const ctx = useContext(NotificationContext);
-    
-    console.log('T', ctx?.announcements)
     useEffect(() => {
         ctx?.updateNotificationCount(0);
-        // Initial fetch
-        // fetchAnnouncements();
 
-        // // Set up interval to refresh announcements every 10 seconds
-        // const interval = setInterval(() => {
-        //     fetchAnnouncements();
-        // }, 10000);
-
-        // // Clean up the interval on component unmount
-        // return () => clearInterval(interval);
     }, []);
 
-    // const fetchAnnouncements = async () => {
-    //     const session = await AsyncStorage.getItem('session');
-
-    //     if( session ) {
-    //         const { email } = JSON.parse(session);
-    //         // Here you would typically make an API call to fetch the latest announcements
-    //         // const response = await fetch(`${BaseUrl}/announcement`);
-    //         const response = await fetch(`${BaseUrl}/announcement`, {
-    //             method: 'POST', 
-    //             headers: {
-    //                 'Content-Type': 'application/json', 
-    //             },
-    //             body: JSON.stringify({
-    //                 email 
-    //             }),
-    //         });
-    //         const data = await response.json();
-    //         setAnnouncements(data.data);
-    //     }
-    // };
 
     const renderHeader = () => (
         <View style={styles.header}>
@@ -123,7 +92,7 @@ export default function AnnouncementsScreen() {
                         onPress={() => setSelectedAnnouncement(item)}
                     />
                 )}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item._id}
                 contentContainerStyle={styles.announcementsList}
             />
         </ThemedView>
