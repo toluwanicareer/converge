@@ -74,7 +74,7 @@ export default function DocumentsScreen() {
             <FlatList
                 data={documents.filter(document => document.name.toLowerCase().includes(searchQuery.toLowerCase()))}
                 renderItem={({ item }) => <DocumentItem document={item} />}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item._id}
                 contentContainerStyle={styles.documentList}
             />
         </ThemedView>

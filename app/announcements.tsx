@@ -123,7 +123,7 @@ export default function AnnouncementsScreen() {
                         onPress={() => setSelectedAnnouncement(item)}
                     />
                 )}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item._id}
                 contentContainerStyle={styles.announcementsList}
             />
         </ThemedView>
