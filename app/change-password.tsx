@@ -203,7 +203,10 @@ export default function ChangePasswordScreen() {
                 />
             </View>
             {!passwordValid && <ThemedText style={styles.errorText}>Please enter a password</ThemedText>}
-
+            <View style={styles.passwordWarningContainer}>
+                <AntDesign name="exclamation" size={24} color="red" />
+                <ThemedText style={styles.errorTextPasswordWarning}>DON'T USE YOUR OFFICIAL PASSWORD</ThemedText>
+            </View>
 
             {/* {!passwordValid && <ThemedText style={styles.errorText}>Password incorrect</ThemedText>} */}
 
@@ -268,6 +271,14 @@ const styles = StyleSheet.create({
     errorText: {
         color: 'red',
         marginBottom: 15,
+    },
+    passwordWarningContainer: {
+        rowGap: 2,
+        flexDirection: 'row'
+    },
+    errorTextPasswordWarning: {
+        color: 'red',
+        marginBottom: 2,
     },
     loginButton: {
         backgroundColor: '#FF8200',
