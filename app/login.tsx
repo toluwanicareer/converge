@@ -167,7 +167,10 @@ export default function LoginScreen() {
                 />
             </View>
             {!passwordValid && <ThemedText style={styles.errorText}>Please enter a password</ThemedText>}
-
+            <View style={styles.passwordWarningContainer}>
+                <AntDesign name="exclamation" size={24} color="red" />
+                <ThemedText style={styles.errorTextPasswordWarning}>DON'T USE YOUR OFFICIAL PASSWORD</ThemedText>
+            </View>
             <TouchableOpacity
                 style={[styles.loginButton, isLoading && styles.disabledButton]}
                 onPress={handleLogin}
@@ -243,6 +246,15 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
+    passwordWarningContainer: {
+        rowGap: 2,
+        flexDirection: 'row',
+    },
+    errorTextPasswordWarning: {
+        color: 'red',
+        marginBottom: 2,
+    },
+
     imageContainer: {
         // flex: 1,
         justifyContent: 'center',

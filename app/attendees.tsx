@@ -28,7 +28,25 @@ interface IAnnouncement {
     recipient: string;
 }
 
-const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
+const colors = ['#87CEEB', '#800080', '#FFD700', '#FFA500']; 
+
+// const getBackgroundColor = (name: string) => {
+//     const colors = ['#87CEEB', '#800080', '#FFD700', '#FFA500']; // sky blue, purple, gold, orange
+//     const charCodeSum = name?.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+//     return colors[charCodeSum % colors.length];
+// };
+
+// const getInitials = (name: string) => {
+//     const initials = name
+//       .split(' ')
+//       .map((part) => part[0])
+//       .join('');
+//     return initials.slice(0, 2).toUpperCase();
+//   };
+
+
+
+const AttendeeItem: React.FC<{ attendee: any, index: any }> = ({ attendee, index }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [message, setMessage] = useState('');
     const [fadeAnim] = useState(new Animated.Value(0));
@@ -36,6 +54,19 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
     const openUrl = (url: string) => {
         Linking.openURL(url);
     };
+
+    const getInitials = (name: string) => {
+        const names = name.split(' ');
+        const initials = names[0][0] + (names[1] ? names[1][0] : '');
+        return initials.toUpperCase();
+   
+    };
+
+    // const backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+    // const backgroundColor = getBackgroundColor(attendee.user_id.name);
+    const backgroundColor = colors[index % colors.length];
+    const initials = getInitials(attendee.user_id.name);
 
     const handleSendEmail = async () => {
         if (!message.trim()) {
@@ -90,7 +121,10 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
 
     return (
         <View style={styles.attendeeItem}>
-            <Image source={{ uri: attendee.user_id.pix }} style={styles.attendeeImage} />
+            {/* <Image source={{ uri: attendee.user_id.pix }} style={styles.attendeeImage} /> */}
+            <View style={[styles.initialsContainer, { backgroundColor }]}>
+                <ThemedText style={styles.initialsText}> {initials}</ThemedText>
+            </View>
             <View style={styles.attendeeInfo}>
                 <ThemedText style={styles.attendeeName}>{attendee.user_id.name}</ThemedText>
                 <ThemedText style={styles.attendeeCompany}>{attendee.company}, {attendee.position}</ThemedText>
@@ -125,7 +159,7 @@ const AttendeeItem: React.FC<{ attendee: any }> = ({ attendee }) => {
                         onChangeText={setMessage}
                     />
                     <View style={styles.buttonRow}>
-                        <TouchableOpacity style={styles.sendButton} onPress={handleSendEmail}>
+                        <TouchableOpacity style={styles.sendButton} onPress={() => handleSendEmail()}>
                             <ThemedText style={styles.buttonText}>Send</ThemedText>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.sendButton, styles.cancelButton]} onPress={() => setModalVisible(false)}>
@@ -180,8 +214,8 @@ export default function AttendeesScreen() {
 
             <FlatList
                 data={searchQuery ? attendees.filter(attendee => attendee.user_id.name.toLowerCase().includes(searchQuery.toLowerCase())) : attendees}
-                renderItem={({ item }) => <AttendeeItem attendee={item} />}
-                keyExtractor={item => item.id}
+                renderItem={({ item, index }) => <AttendeeItem attendee={item} index={index} />}
+                keyExtractor={item => item._id}
                 contentContainerStyle={styles.attendeeList}
             />
         </ThemedView>
@@ -240,6 +274,19 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
+    },
+    initialsContainer: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 15,
+    },
+    initialsText: {
+        color: 'white',
+        fontSize: 24,
+        fontWeight: 'bold',
     },
     attendeeImage: {
         width: 60,
