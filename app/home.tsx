@@ -168,8 +168,9 @@ const styles = StyleSheet.create({
         color: '#000',
     },
     logoutBtnContainer: {
-        marginRight: 100,
-        gap: 20
+        // marginRight: 100,
+        marginLeft: 7
+        // gap: 20
     },
     container: {
         flex: 1,
